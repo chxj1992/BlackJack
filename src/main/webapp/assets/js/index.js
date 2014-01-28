@@ -5,6 +5,12 @@ define('index',['jquery','bootstrap','utils/datetime'],function(require, exports
 
     $(document).ready(function(){
 
+        $('#advisor').click(function(){
+            $(this).popover();
+            setTimeout(function(){
+                $("#advisor").popover('hide');
+            },5000);
+        });
     });
 
 

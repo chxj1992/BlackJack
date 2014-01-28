@@ -8,7 +8,9 @@
 
         <div class="row page-header">
             <div class="col-md-3 col-md-offset-4">
-                <h1 class="col-md-offset-1"> Black Jack </h1>
+                <h1 class="col-md-offset-1">
+                    Black Jack
+                </h1>
             </div>
         </div>
 
@@ -37,50 +39,94 @@
             </div>
 
             <div id="card-board" class="col-md-7" style="padding-left: 40px;">
-                <div id="dealer-card" class="row">
-                    <strong>Dealer</strong> <br />
-                    <img src="/img/avatar.jpg" alt=""/>
-                    <img src="/img/poker/11.jpg" class="img-thumbnail" width="80px" />
-                    <img src="/img/poker/0.jpg" class="img-thumbnail"  width="80px"/>
+                <div id="dealer-part" class="row">
+                    <strong>Dealer</strong>
+                    <div id="dealer-card" class="col-md-offset-1">
+                        <img src="/img/poker/11.jpg" class="img-thumbnail" width="80px" />
+                        <img src="/img/poker/0.jpg" class="img-thumbnail"  width="80px"/>
+                    </div>
+
                 </div>
                 <hr />
-                <div id="player-card" class="row">
-                    <strong>Player</strong> <br />
-                    <img src="/img/avatar.jpg" alt=""/>
-                    <img src="/img/poker/11.jpg" class="img-thumbnail" width="80px" />
-                    <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
-                    <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
-                    <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
-                    <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
+                <div id="player-part" class="row">
+                    <strong>Player</strong>
+                    <div id="player-card" class="col-md-offset-1">
+                        <img src="/img/poker/11.jpg" class="img-thumbnail" width="80px" />
+                        <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
+                        <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
+                        <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
+                        <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
+                    </div>
                 </div>
                 <hr />
                 <div id="operation-board" class="col-md-10 jumbotron" style="padding: 20px;">
-                    <div id="stack-btn" class="btn-group col-md-2">
-                        <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
-                            注金：$5 <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu" style="">
-                            <li class="col-md-offset-1"> $10 </li>
-                            <li class="col-md-offset-1"> $50 </li>
-                            <li class="col-md-offset-1"> $100 </li>
-                        </ul>
+                    <strong><small>Operation Platform</small></strong>
+                    <div id="board-before-start">
+                        <div id="stack-btn" class="btn-group col-md-2">
+                            <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+                                <span id="stack-btn-text"> 注金：$10 </span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" style="">
+                                <li class="col-md-offset-1"> $10 </li>
+                                <li class="col-md-offset-1"> $50 </li>
+                                <li class="col-md-offset-1"> $100 </li>
+                            </ul>
+                        </div>
+                        <div class="pull-right">
+                            <button class="btn btn-primary"> 开牌 </button>
+                        </div>
                     </div>
-                    <div class="pull-right">
-                        <button class="btn btn-primary"> 开牌 </button>
+                    <br/>
+                    <div id="board-playing">
+                        <button class="btn btn-info"> 要牌 </button>
+                        <button class="btn btn-warning"> 停牌 </button>
+                        <button class="btn btn-success"> 双倍 </button>
+                        <button class="btn btn-danger pull-right">
+                            投降
+                            <span class="glyphicon glyphicon-flag"></span>
+                        </button>
                     </div>
                 </div>
             </div>
-
-            <div id="account-board" class="col-md-2 jumbotron" style="padding: 20px;">
-                <strong> Your Account </strong>
-                <img src="/img/avatar.jpg" alt=""/>
+            <div id="dealer-account" style="height: 130px;">
+                <img src="/img/avatar.jpg" />
+                <h4><small> Dealer:
+                    <a target="_blank" href="http://blog.chxj.name">Tony </a>
+                </small></h4>
+                <h4><small> Level:
+                    <span class="label label-success">Beginner</span>
+                </small></h4>
+            </div>
+            <hr />
+            <div id="player-account" class="col-md-2 jumbotron" style="padding: 10px;">
+                <strong><small> Account </small></strong>
+                <small><span class="glyphicon glyphicon-user"> </span></small>
+                <img src="/img/male.jpeg" width="92px" alt=""/>
                 <h4><small> Player : Tony </small></h4>
-                <h4><small> Balance : $1000 </small></h4>
+                <h4><small> Balance : $1000</small></h4>
                 <h3><small>
                     Need Help?
                 </small></h3>
-                <span class="label label-info"><small>Advisor</small></span>
+                <span id="advisor" class="label label-info" style="cursor: pointer;"
+                      data-toggle="popover" data-placement="left" data-container="#advisor-tooltip"
+                      data-content="I advise you to 'Hit'" title="My Lord">
+                    <small>
+                        Advisor
+                        <span class="glyphicon glyphicon-tag"></span>
+                    </small>
+                </span>
+                <div id="advisor-tooltip" style="font-size: 14px;"></div>
+            </div>
 
+            <div id="powered-by" class="col-md-2" style="margin-top: 10px;">
+                <h4>
+                    <small> Fetch Code From
+                        <a target="_blank" href="http://github.com/chenxiaojing123">
+                            <img src="/img/github.ico" width="24px" alt=""/>
+                        </a>
+                    </small>
+                </h4>
             </div>
         </div>
 
@@ -88,6 +134,7 @@
 
     <script>
         seajs.use(['jquery','index']);
+
     </script>
 
 <%@include file="public/footer.jsp" %>
