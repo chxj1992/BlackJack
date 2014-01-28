@@ -7,7 +7,7 @@
         <title>Black Jack</title>
         <link rel="stylesheet" href="/bower/bootstrap/dist/css/bootstrap.min.css"/>
         <link rel="stylesheet" href="/css/main.css" />
-        <script src="/bower/requirejs/require.js" data-main="js/index"></script>
+        <script src="/bower/requirejs/require.js" data-main="js/main"></script>
 </head>
 
 <body>

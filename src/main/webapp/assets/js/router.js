@@ -1,29 +1,11 @@
-require.config({
-    baseUrl:'/bower',
-    paths : {
-        'jquery' : 'jquery/jquery.min',
-        'bootstrap' : 'bootstrap/dist/js/bootstrap.min',
-        'underscore' : 'underscore/underscore-min',
-        'backbone' : 'backbone/backbone-min'
-    },
-    shim : {
-        'bootstrap' : {
-            deps : ['jquery']
-        },
-        'backbone' : {
-           deps : ['underscore']
-        }
-    }
-});
-
-
 require(['jquery','bootstrap','backbone'],function(){
 
-    var MyRouter = Backbone.Router.extend({
+     var AppRouter = Backbone.Router.extend({
         routes: {
             'user-info': 'userInfo',
             '': 'homePage'
         },
+
         userInfo: function() {
             alert("userInfo");
             // render first view
@@ -32,12 +14,12 @@ require(['jquery','bootstrap','backbone'],function(){
             alert("homePage");
             // render second view
         }
-        // ...
     });
 
-    new MyRouter;
+    new AppRouter;
     Backbone.history.start();
 
+    /*
     $(document).ready(function(){
         $('#advisor').click(function(){
             $(this).popover();
@@ -46,6 +28,7 @@ require(['jquery','bootstrap','backbone'],function(){
             },5000);
         });
     });
+    */
 
 
 });
