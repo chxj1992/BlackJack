@@ -7,13 +7,17 @@
         <title>Black Jack</title>
         <link rel="stylesheet" href="/bower/bootstrap/dist/css/bootstrap.min.css"/>
         <link rel="stylesheet" href="/css/main.css" />
-        <script src="/bower/seajs/sea.js"></script>
-        <script>
-            seajs.config({
-                base: "/js/",
-                alias: {
-                    "jquery": "sea_modules/jquery.js",
-                    "bootstrap": "sea_modules/bootstrap.js"
-                }
-            });
-        </script>
+        <script src="/bower/requirejs/require.js" data-main="js/index"></script>
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="row page-header">
+            <div class="col-md-3 col-md-offset-4">
+                <h1 class="col-md-offset-1">
+                    Black Jack
+                </h1>
+            </div>
+        </div>
+
