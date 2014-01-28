@@ -102,7 +102,7 @@
             <div id="player-account" class="col-md-2 jumbotron" style="padding: 10px;">
                 <strong><small> Account </small></strong>
                 <small><span class="glyphicon glyphicon-user"> </span></small>
-                <img src="/img/male.jpeg" width="92px" alt=""/>
+                <img src="/img/player.jpeg" width="92px" alt=""/>
                 <h4><small> Player : Tony </small></h4>
                 <h4><small> Balance : $1000</small></h4>
                 <h3><small>
@@ -122,7 +122,7 @@
             <div id="powered-by" class="col-md-2" style="margin-top: 10px;">
                 <h4>
                     <small> Fetch Code From
-                        <a target="_blank" href="http://github.com/chenxiaojing123">
+                        <a target="_blank" href="http://github.com/chenxiaojing123/BlackJack">
                             <img src="/img/github.ico" width="24px" alt=""/>
                         </a>
                     </small>
