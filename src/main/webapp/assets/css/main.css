@@ -1,0 +1,43 @@
+
+body {
+    background-image : url("/img/bg.png");
+}
+
+/************************
+ * Login
+ *************************/
+.panel-body {
+    background-color : rgba(0, 0, 0, 0.0196078)
+}
+
+#login-alert {
+    display: none;
+}
+
+/**********************
+ *  Content
+ *********************/
+#new-content {
+    font-size: 20px;
+}
+
+#content-alert {
+    display: none;
+    margin-top:10px;
+}
+
+.update-time {
+    margin-left: 10px;
+}
+
+.content-input {
+    display: none;
+}
+
+#user-info {
+    margin: 10px;
+}
+
+#user-avatar {
+    width: 32px;
+}

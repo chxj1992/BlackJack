@@ -1,0 +1,31 @@
+apply plugin: 'jetty'
+apply plugin: 'war'
+apply plugin: 'jetty'
+apply plugin: 'idea'
+apply from: 'http://www.tellurianring.com/projects/gradle-plugins/gradle-templates/apply.groovy'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+        compile "org.springframework:spring-webmvc:3.2.5.RELEASE",
+                "org.springframework:spring-jdbc:3.2.5.RELEASE",
+                "javax.servlet:jstl:1.2",
+                "com.google.guava:guava:11.0.2",
+                "org.codehaus.jackson:jackson-mapper-asl:1.9.5",
+                "mysql:mysql-connector-java:5.1.28" 
+        
+        providedCompile "javax.servlet:servlet-api:2.5",
+                        "javax.servlet.jsp:jsp-api:2.1"
+                                                    
+        testCompile "junit:junit:4.8.2",
+                    "org.mockito:mockito-all:1.9.5",
+                    "org.springframework:spring-test:3.2.5.RELEASE"
+}
+
+jettyRunWar {
+    contextPath = ''
+    httpPort = 9090
+}
