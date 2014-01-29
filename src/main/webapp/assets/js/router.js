@@ -27,17 +27,6 @@ define(['view','jquery','bootstrap','backbone'],function(view){
     new AppRouter;
     Backbone.history.start();
 
-    /*
-    $(document).ready(function(){
-        $('#advisor').click(function(){
-            $(this).popover();
-            setTimeout(function(){
-                $("#advisor").popover('hide');
-            },5000);
-        });
-    });
-    */
-
 
 });
 

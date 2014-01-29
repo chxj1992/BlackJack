@@ -14,9 +14,13 @@
     <div class="container">
 
         <div class="row page-header">
-            <div class="col-md-3 col-md-offset-4">
+            <div class="col-md-7 col-md-offset-4">
                 <h1 class="col-md-offset-1">
                     Black Jack
+                    <button id="reset" class="btn btn-danger pull-right">
+                        Reset
+                        <span class="glyphicon glyphicon-log-out"></span>
+                    </button>
                 </h1>
             </div>
         </div>

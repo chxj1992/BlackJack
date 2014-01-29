@@ -13,11 +13,11 @@
                     <label for="level" class="control-label col-md-3">Level</label>
                     <div id="level" class="col-md-9">
                         <label class="radio-inline">
-                            <input type="radio" class="level" name="level" checked />
+                            <input type="radio" class="level" name="level" value="beginner" checked />
                             Beginner
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" class="level" name="level" />
+                            <input type="radio" class="level" name="level" value="expert" />
                             Expert
                         </label>
                     </div>
@@ -26,11 +26,11 @@
                     <label for="Gender" class="control-label col-md-3">Gender</label>
                     <div id="gender" class="col-md-9">
                         <label class="radio-inline">
-                            <input type="radio" class="gender" name="gender" checked />
+                            <input type="radio" class="gender" name="gender" value="male" checked />
                             Male
                         </label>
                         <label class="radio-inline">
-                            <input type="radio" class="gender" name="gender" />
+                            <input type="radio" class="gender" name="gender" value="female" />
                             Female
                         </label>
                     </div>
@@ -43,7 +43,7 @@
         </div>
     </div>
 
-    <div id="content" class="row hide">
+    <div id="content" class="row">
         <div id="description" class="col-md-3">
             <div>
                 <strong>Rules</strong>
@@ -103,15 +103,15 @@
                         </ul>
                     </div>
                     <div class="pull-right">
-                        <button class="btn btn-primary"> 开牌 </button>
+                        <button id="open-cards" class="btn btn-primary"> 开牌 </button>
                     </div>
                 </div>
                 <br/>
                 <div id="board-playing">
-                    <button class="btn btn-info"> 要牌 </button>
-                    <button class="btn btn-warning"> 停牌 </button>
-                    <button class="btn btn-success"> 双倍 </button>
-                    <button class="btn btn-danger pull-right">
+                    <button id="hit" class="btn btn-info non-first-round"> 要牌 </button>
+                    <button id="stand" class="btn btn-warning non-first-round"> 停牌 </button>
+                    <button id="double" class="btn btn-success first-round"> 双倍 </button>
+                    <button id="surrender" class="btn btn-danger pull-right first-round">
                         投降
                         <span class="glyphicon glyphicon-flag"></span>
                     </button>
@@ -124,16 +124,16 @@
                 <a target="_blank" href="http://blog.chxj.name">Tony </a>
             </small></h4>
             <h4><small> Level:
-                <span class="label label-success">Beginner</span>
+                <span id="level-show" class="label label-success">Beginner</span>
             </small></h4>
         </div>
         <hr />
         <div id="player-account" class="col-md-2 jumbotron" style="padding: 10px;">
             <strong><small> Account </small></strong>
             <small><span class="glyphicon glyphicon-user"> </span></small>
-            <img src="/img/player.jpeg" width="92px" alt=""/>
-            <h4><small> Player : Tony </small></h4>
-            <h4><small> Balance : $1000</small></h4>
+            <img id="player-avatar-show" src="" width="92px" alt=""/>
+            <h4><small> Player : <span id="player-name-show">Tony</span> </small></h4>
+            <h4><small> Balance : <span id="balance-show">$1000</span></small></h4>
             <h3><small>
                 Need Help?
             </small></h3>
