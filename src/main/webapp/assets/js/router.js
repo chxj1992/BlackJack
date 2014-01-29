@@ -1,18 +1,26 @@
-require(['jquery','bootstrap','backbone'],function(){
+define(['view','jquery','bootstrap','backbone'],function(view){
 
-     var AppRouter = Backbone.Router.extend({
+    var AppRouter = Backbone.Router.extend({
+
         routes: {
             'user-info': 'userInfo',
             '': 'homePage'
         },
 
         userInfo: function() {
-            alert("userInfo");
-            // render first view
+            if ( localStorage.getItem('userInfo') != undefined ) {
+                window.location.hash = '';
+            } else {
+                view.userInfo();
+            }
         },
+
         homePage: function() {
-            alert("homePage");
-            // render second view
+            if ( localStorage.getItem('userInfo') == undefined ) {
+                window.location.hash = 'user-info';
+            } else {
+                view.homePage();
+            }
         }
     });
 
