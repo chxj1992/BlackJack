@@ -10,6 +10,10 @@ import com.google.common.collect.ImmutableMap;
  */
 public class AjaxReturn {
 
+    public static ImmutableMap success( String info, Object data ) {
+        return ImmutableMap.of("status", "1", "info", info, "data", data);
+    }
+
     public static ImmutableMap success( String info ) {
         return ImmutableMap.of("status", "1", "info", info);
     }

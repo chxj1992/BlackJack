@@ -19,26 +19,13 @@ public class PokerTest {
 
     @Test
     public void test_init_number_is_52() throws Exception {
-        assertThat(Poker.init().size(),is(52));
+        assertThat(Poker.init().size(), is(52));
     }
 
     @Test
-    public void test_init_cards_right() throws Exception {
-        assertThat(Poker.init(2).get(62),is(11));
+    public void test_init_2_number_is_104() throws Exception {
+        assertThat(Poker.init(2).size(), is(104));
     }
 
-    @Test
-    public void test_shuffled_cards_number_not_change() throws Exception {
-        List poker = Poker.init();
-        Poker.shuffle(poker);
-        assertTrue(poker.size() == Poker.init().size());
-    }
-
-    @Test
-    public void test_shuffled_cards_change() throws Exception {
-        List poker = Poker.init();
-        Poker.shuffle(poker);
-        assertFalse(poker.equals(Poker.init()));
-    }
 
 }

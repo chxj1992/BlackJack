@@ -9,9 +9,10 @@
         <constructor-arg ref="dataSource"></constructor-arg>
     </bean>
 
-    <!--
-    <bean id="contentDao" class="dao.ContentDao"/>
-    -->
+    <bean id="pokerDao" class="dao.PokerDao" />
+
+    <bean id="pokerMapper" class="mapper.PokerMapper" />
+
 
 
 </beans>

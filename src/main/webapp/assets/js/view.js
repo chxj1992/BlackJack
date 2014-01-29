@@ -38,6 +38,7 @@ define(['jquery','backbone'],function(){
                     'gender' : $(".gender:checked").val()
                 };
                 localStorage.setItem('userInfo', JSON.stringify(userInfo) );
+                localStorage.setItem('balance', 1000);
                 window.location.hash = '';
             },
 
@@ -87,7 +88,6 @@ define(['jquery','backbone'],function(){
             initUserInfo : function() {
                 var userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
-                console.log(userInfo);
                 $("#player-avatar-show").attr("src","/img/"+userInfo.gender+".jpeg");
                 $("#player-name-show").text(userInfo.player);
                 $("#level-show").text(userInfo.level);
@@ -95,6 +95,7 @@ define(['jquery','backbone'],function(){
                     $("#level-show").attr("class","label label-danger");
                 else
                     $("#level-show").attr("class","label label-success");
+                $('#balance-show').text(localStorage.getItem("balance"));
 
             }
 

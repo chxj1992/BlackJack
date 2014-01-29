@@ -24,10 +24,11 @@ public class Poker {
             Integer value = (i%52 == 0)  ? 52 : (i%52);
             data.add(value);
         }
+        shuffle(data);
         return data;
     }
 
-    public static void shuffle(List<Integer> data) {
+    private static void shuffle(List<Integer> data) {
         for (int i = 0; i < data.size(); i++) {
             int j = (int) (data.size() * Math.random());
             swap(data, i, j);

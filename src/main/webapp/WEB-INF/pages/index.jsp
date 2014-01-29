@@ -133,7 +133,7 @@
             <small><span class="glyphicon glyphicon-user"> </span></small>
             <img id="player-avatar-show" src="" width="92px" alt=""/>
             <h4><small> Player : <span id="player-name-show">Tony</span> </small></h4>
-            <h4><small> Balance : <span id="balance-show">$1000</span></small></h4>
+            <h4><small> Balance : $<span id="balance-show">1000</span></small></h4>
             <h3><small>
                 Need Help?
             </small></h3>
