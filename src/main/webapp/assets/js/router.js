@@ -11,7 +11,8 @@ define(['view','jquery','bootstrap','backbone'],function(view){
             if ( localStorage.getItem('userInfo') != undefined ) {
                 window.location.hash = '';
             } else {
-                view.userInfo();
+                var user = new view.user;
+                user.userInfo();
             }
         },
 
@@ -19,7 +20,8 @@ define(['view','jquery','bootstrap','backbone'],function(view){
             if ( localStorage.getItem('userInfo') == undefined ) {
                 window.location.hash = 'user-info';
             } else {
-                view.homePage();
+                var app = new view.app;
+                app.homePage();
             }
         }
     });

@@ -71,8 +71,6 @@
             <div id="dealer-part" class="row">
                 <strong>Dealer</strong>
                 <div id="dealer-card" class="col-md-offset-1" style="height: 110px;">
-                    <img src="/img/poker/11.jpg" class="img-thumbnail" width="80px" />
-                    <img src="/img/poker/0.jpg" class="img-thumbnail"  width="80px"/>
                 </div>
 
             </div>
@@ -80,11 +78,6 @@
             <div id="player-part" class="row">
                 <strong>Player</strong>
                 <div id="player-card" class="col-md-offset-1" style="height: 110px;">
-                    <img src="/img/poker/11.jpg" class="img-thumbnail" width="80px" />
-                    <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
-                    <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
-                    <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
-                    <img src="/img/poker/10.jpg" class="img-thumbnail" width="80px" />
                 </div>
             </div>
             <hr />
@@ -158,6 +151,5 @@
             </h4>
         </div>
     </div>
-
 
 <%@include file="public/footer.jsp" %>

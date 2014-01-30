@@ -9,7 +9,7 @@ import java.util.List;
  * Author: chen
  * DateTime: 1/28/14 2:40 PM
  */
-public class Poker {
+public class Pokers {
 
     private static final Integer POKER_NUM = 52;
 

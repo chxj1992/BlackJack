@@ -22,6 +22,10 @@ public class AjaxReturn {
         return AjaxReturn.success("success");
     }
 
+    public static ImmutableMap fail( String info, Object data ) {
+        return ImmutableMap.of("status", "0", "info", info, "data", data);
+    }
+
     public static ImmutableMap fail( String info ) {
         return ImmutableMap.of("status", "0", "info", info);
     }
