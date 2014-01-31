@@ -2,6 +2,7 @@
 
     <%@include file="user.jsp" %>
 
+    <div id="mask"></div>
     <div id="content" class="row">
         <%@include file="description.jsp" %>
 
@@ -47,6 +48,8 @@
                     <button id="hit" class="btn btn-info non-first-round"> 要牌 </button>
                     <button id="stand" class="btn btn-warning non-first-round"> 停牌 </button>
                     <button id="double" class="btn btn-success first-round"> 双倍 </button>
+                    <button id="insurance" class="btn btn-primary special"> 保险 </button>
+                    <button id="five-win" class="btn btn-primary special"> 五龙胜 </button>
                     <button id="surrender" class="btn btn-danger pull-right first-round">
                         投降
                         <span class="glyphicon glyphicon-flag"></span>

@@ -111,6 +111,11 @@ define(['model','jquery','backbone'],function(PokerModel){
             this.toBeforeStart();
         },
 
+        stand : function(){
+            $("#board-playing > button").attr("disabled","disabled");
+            this.model.stand();
+        },
+
         hit : function() {
             this.model.hit();
             this.toNonFirstRound();
@@ -135,6 +140,7 @@ define(['model','jquery','backbone'],function(PokerModel){
         toFirstRound : function(){
             $("#board-before-start").hide();
             $("#board-playing > button").show();
+            $("#board-playing > .special").hide();
         },
 
         toNonFirstRound : function() {

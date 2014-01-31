@@ -10,25 +10,69 @@ import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
- * add_your_description_here
  * Author: chen
  * DateTime: 1/31/14 11:28 PM
  */
 public class PokerService {
 
 
+    private static final double NORMAL_RATE = 1.0 ;
+    private static final double BLACKJACK_RATE = 2.0 ;
+    private static final double SPECIAL_RATE = 3.0 ;
+
     @Autowired
     private PokerDao pokerDao;
 
+
     public String judgeWinner(HttpSession session) {
+
         List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
         List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
-        return "player";
+        Integer playerScore = 0;
+        for ( Poker poker : playerCards ){
+            playerScore += poker.getValue();
+        }
+        Integer dealerScore = 0;
+        for ( Poker poker : dealerCards ){
+            dealerScore += poker.getValue();
+        }
+
+        if ( playerScore > dealerScore ) {
+            return "player";
+        } else if ( playerScore < dealerScore ) {
+            return "dealer";
+        } else {
+            return "draw";
+        }
     }
 
 
-    public double judgeBetRate(HttpSession session) {
-        return 1.0;
+    public double judgeBetRate(String winner, HttpSession session) {
+
+        double rate = NORMAL_RATE;
+        if( winner.equals("draw") )
+            return rate;
+
+        List<Poker> pokers;
+        if( winner.equals("player") )
+            pokers = (List<Poker>) session.getAttribute("playerCards");
+        else
+            pokers = (List<Poker>) session.getAttribute("playerCards");
+
+        //黑杰克
+        if ( pokers.size() == 2 && (pokers.get(0).getValue()+pokers.get(1).getValue()) == 21 )
+            rate = BLACKJACK_RATE;
+
+        //特奖
+        Integer sevenNum = 0;
+        for( Poker poker : pokers ) {
+            if ( poker.getValue().equals(7) )
+                sevenNum ++;
+        }
+        if ( sevenNum.equals(7) )
+            rate = SPECIAL_RATE;
+
+        return rate;
     }
 
 

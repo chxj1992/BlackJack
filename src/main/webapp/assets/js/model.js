@@ -32,9 +32,14 @@ define(['jquery','backbone'],function(){
                     if ( data.status == 0 ) {
                         $("#bet-lose").text(localStorage.getItem("bet"));
                         $("#alert-bust").fadeIn();
+                        $("#mask").show();
                     }
                 }
             });
+
+        },
+
+        stand : function() {
 
         },
 

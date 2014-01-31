@@ -1,7 +1,6 @@
 package controller;
 
 import com.google.common.collect.ImmutableMap;
-import dao.PokerDao;
 import model.Poker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -139,9 +138,19 @@ public class IndexController {
             return AjaxReturn.fail("status error");
 
         String winner = pokerService.judgeWinner(session);
-        double rate = pokerService.judgeBetRate(session);
+        double rate = pokerService.judgeBetRate(winner, session);
 
         pokerService.clearAll(session);
+        Map data = ImmutableMap.of("winner", winner, "rate", rate, "dealer", (List<Poker>)session.getAttribute("dealerCards"));
+
+        return AjaxReturn.success("success",data);
+    }
+
+
+    @RequestMapping(value="/five", method = RequestMethod.POST)
+    @ResponseBody
+    public Map isFiveCard(HttpSession session) {
+
         return AjaxReturn.success();
     }
 
