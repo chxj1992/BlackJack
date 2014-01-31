@@ -11,11 +11,11 @@ import com.google.common.collect.ImmutableMap;
 public class AjaxReturn {
 
     public static ImmutableMap success( String info, Object data ) {
-        return ImmutableMap.of("status", "1", "info", info, "data", data);
+        return ImmutableMap.of("status", 1, "info", info, "data", data);
     }
 
     public static ImmutableMap success( String info ) {
-        return ImmutableMap.of("status", "1", "info", info);
+        return ImmutableMap.of("status", 1, "info", info);
     }
 
     public static ImmutableMap success() {
@@ -23,11 +23,11 @@ public class AjaxReturn {
     }
 
     public static ImmutableMap fail( String info, Object data ) {
-        return ImmutableMap.of("status", "0", "info", info, "data", data);
+        return ImmutableMap.of("status", 0, "info", info, "data", data);
     }
 
     public static ImmutableMap fail( String info ) {
-        return ImmutableMap.of("status", "0", "info", info);
+        return ImmutableMap.of("status", 0, "info", info);
     }
 
     public static ImmutableMap fail() {

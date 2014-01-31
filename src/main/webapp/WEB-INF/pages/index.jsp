@@ -1,71 +1,9 @@
 <%@include file="public/header.jsp" %>
 
-    <div id="user-info" class="row">
-        <div class="col-md-4 col-md-offset-4 alert alert-success">
-            <div class="form-horizontal">
-                <div class="form-group">
-                    <label for="player-name" class="control-label col-md-3">Player</label>
-                    <div class="col-md-6">
-                        <input id="player-name" type="text" class="form-control" placeholder="Player1" />
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="level" class="control-label col-md-3">Level</label>
-                    <div id="level" class="col-md-9">
-                        <label class="radio-inline">
-                            <input type="radio" class="level" name="level" value="beginner" checked />
-                            Beginner
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" class="level" name="level" value="expert" />
-                            Expert
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="Gender" class="control-label col-md-3">Gender</label>
-                    <div id="gender" class="col-md-9">
-                        <label class="radio-inline">
-                            <input type="radio" class="gender" name="gender" value="male" checked />
-                            Male
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" class="gender" name="gender" value="female" />
-                            Female
-                        </label>
-                    </div>
-                </div>
-                <hr />
-                <div class="form-group">
-                    <button id="start-game" class="btn btn-success col-md-offset-6">Start Game</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <%@include file="user.jsp" %>
 
     <div id="content" class="row">
-        <div id="description" class="col-md-3">
-            <div>
-                <strong>Rules</strong>
-            </div>
-           <p> <small>黑杰克(BlackJack):2张手牌相加为21点（A+10）</small></p>
-            <p><small>要牌(Hit):再得一张牌,庄家手牌小于17点必须要牌</small></p>
-            <p><small>停牌(Stand):不再要牌,庄家手牌达到17必须停牌</small></p>
-            <p><small>爆牌(Bust):手牌总数大于21点,爆牌则输掉注金</small></p>
-            <p><small>分牌(Split):当玩家拿到2张一样的手牌时可以选择分牌,
-                即再下一注并将2张牌分为单独的2副牌,如果拿到2张A,
-                分牌后只能再各要一张,如果拿到黑杰克也只能算普通的21点</small></p>
-            <p><small>双倍(Double):玩家第一回合可双倍下注,然后再拿一张牌</small></p>
-            <p><small>保险(Insurance):如果庄家明牌为A,玩家可以选择买保险,
-                如果庄家拿到黑杰克,玩家将赢得2倍注金,否则输掉保险金</small></p>
-            <p><small>投降(Surrender):第一回合且庄家明牌不为A时，玩家可投降并收回一半注金</small></p>
-
-            <strong>Victories</strong>
-            <p><small>基本:玩家点数大于庄家,赢1倍注金</small></p>
-            <p><small>黑杰克:玩家获得黑杰克时,赢2倍注金</small></p>
-            <p><small>特奖:玩家牌为同花色6,7,8或3张7时,赢3倍注金</small></p>
-            <p><small>五龙:当庄家明牌不为A,而玩家手中有5张牌且没有爆牌，可赢0.5倍注金</small></p>
-        </div>
+        <%@include file="description.jsp" %>
 
         <div id="card-board" class="col-md-7" style="padding-left: 40px;">
             <div id="dealer-part" class="row">
@@ -74,25 +12,30 @@
                 </div>
 
             </div>
+
             <hr />
+            <%@include file="alert.jsp" %>
+
             <div id="player-part" class="row">
                 <strong>Player</strong>
+                <strong class="col-md-offset-7"><small>Total: </small><span id="total-score">0</span></strong>
                 <div id="player-card" class="col-md-offset-1" style="height: 110px;">
                 </div>
             </div>
             <hr />
-            <div id="operation-board" class="col-md-10 jumbotron" style="padding: 20px;">
+
+            <div id="operation-board" class="col-md-10 jumbotron" style="padding: 10px;">
                 <strong><small>Operation Platform</small></strong>
                 <div id="board-before-start">
                     <div id="stack-btn" class="btn-group col-md-2">
                         <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
-                            <span id="stack-btn-text"> 注金：$10 </span>
+                            <span id="bet-btn-text"> 注金：$<span id="bet-value">10</span> </span>
                             <span class="caret"></span>
                         </button>
-                        <ul class="dropdown-menu" role="menu" style="">
-                            <li class="col-md-offset-1"> $10 </li>
-                            <li class="col-md-offset-1"> $50 </li>
-                            <li class="col-md-offset-1"> $100 </li>
+                        <ul id="bet-memu" class="dropdown-menu" role="menu" style="">
+                            <li class="col-md-offset-2 bet"> $<span>10</span> </li>
+                            <li class="col-md-offset-2 bet"> $<span>50</span> </li>
+                            <li class="col-md-offset-2 bet"> $<span>100</span> </li>
                         </ul>
                     </div>
                     <div class="pull-right">
@@ -151,5 +94,6 @@
             </h4>
         </div>
     </div>
+
 
 <%@include file="public/footer.jsp" %>

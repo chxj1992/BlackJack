@@ -36,4 +36,7 @@ public class Poker {
         return fileName;
     }
 
+    public void setValue(int value) {
+        this.value = value;
+    }
 }

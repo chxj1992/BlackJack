@@ -17,8 +17,8 @@
             <div class="col-md-7 col-md-offset-4">
                 <h1 class="col-md-offset-1">
                     Black Jack
-                    <button id="reset" class="btn btn-danger pull-right">
-                        Reset
+                    <button class="btn btn-danger pull-right quit-btn">
+                        Quit
                         <span class="glyphicon glyphicon-log-out"></span>
                     </button>
                 </h1>

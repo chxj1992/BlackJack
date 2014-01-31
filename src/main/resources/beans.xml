@@ -11,6 +11,8 @@
 
     <bean id="pokerDao" class="dao.PokerDao" />
 
+    <bean id="pokerService" class="service.PokerService" />
+
     <bean id="pokerMapper" class="mapper.PokerMapper" />
 
 

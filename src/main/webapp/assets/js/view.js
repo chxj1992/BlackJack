@@ -9,7 +9,7 @@ define(['model','jquery','backbone'],function(PokerModel){
         userInfo : function(){
             $('#content').hide();
             $('#user-info').show();
-            $('#reset').hide();
+            $('.quit-btn').hide();
 
         },
 
@@ -50,13 +50,15 @@ define(['model','jquery','backbone'],function(PokerModel){
         el:$('body'),
         model : new PokerModel,
         events: {
-            'click #reset' : 'reset',
+            'click .quit-btn' : 'quit',
             'click #advisor' : 'advisor',
             'click #surrender' : 'surrender',
             'click #open-cards' : 'openCards',
             'click #stand' : 'stand',
             'click #double' : 'double',
-            'click #hit' : 'hit'
+            'click #hit' : 'hit',
+            'click .bet' : 'setBet',
+            'click .retry-btn' : 'retry'
         },
 
         initialize : function() {
@@ -65,29 +67,37 @@ define(['model','jquery','backbone'],function(PokerModel){
 
         render : function() {
             if ( this.model.get('role') == 'player' )
-                $("#player-card").append('<img src="/img/poker/'+ this.model.get('fileName')+'" class="img-thumbnail" width="80px" />' );
+                $("#player-card").append('<img src="/img/poker/'+ this.model.get('fileName')+'" value="'+this.model.get('value')+'" class="img-thumbnail" width="80px" />' );
             else
-                $("#dealer-card").append('<img src="/img/poker/'+ this.model.get('fileName')+'" class="img-thumbnail" width="80px" />' );
+                $("#dealer-card").append('<img src="/img/poker/'+ this.model.get('fileName')+'" value="'+this.model.get('value')+'" class="img-thumbnail" width="80px" />' );
         },
 
         homePage : function(){
             $('#user-info').hide();
             $('#content').show();
-            $('#reset').show();
+            $('.quit-btn').show();
             this.initUserInfo();
             this.toBeforeStart();
         },
 
         openCards : function(){
-
             this.toFirstRound();
             this.model.openCards();
-
+            $("#balance-show").text(localStorage.getItem('balance'));
         },
 
-        reset : function(){
+        retry : function(){
+            this.toBeforeStart();
+        },
+
+        quit : function(){
             localStorage.removeItem('userInfo');
-            window.location.hash = '#user-info';
+            window.location.reload();
+        },
+
+        setBet : function(e){
+            var bet = $(e.currentTarget.children[0]).text();
+            $("#bet-value").text(bet);
         },
 
         advisor : function(){
@@ -114,6 +124,10 @@ define(['model','jquery','backbone'],function(PokerModel){
      * Private Functions
      *********************************************/
         toBeforeStart : function(){
+            $(".alert").fadeOut();
+            $("#player-card").html('');
+            $("#dealer-card").html('');
+            $("#total-score").text(0);
             $("#board-playing > button").hide();
             $("#board-before-start").show();
         },
