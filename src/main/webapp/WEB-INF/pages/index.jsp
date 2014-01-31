@@ -6,10 +6,10 @@
     <div id="content" class="row">
         <%@include file="description.jsp" %>
 
-        <div id="card-board" class="col-md-7" style="padding-left: 40px;">
+        <div id="card-board" class="col-md-7">
             <div id="dealer-part" class="row">
                 <strong>Dealer</strong>
-                <div id="dealer-card" class="col-md-offset-1" style="height: 110px;">
+                <div id="dealer-card" class="col-md-offset-1">
                 </div>
 
             </div>
@@ -20,12 +20,12 @@
             <div id="player-part" class="row">
                 <strong>Player</strong>
                 <strong class="col-md-offset-7"><small>Total: </small><span id="total-score">0</span></strong>
-                <div id="player-card" class="col-md-offset-1" style="height: 110px;">
+                <div id="player-card" class="col-md-offset-1">
                 </div>
             </div>
             <hr />
 
-            <div id="operation-board" class="col-md-10 jumbotron" style="padding: 10px;">
+            <div id="operation-board" class="col-md-10 jumbotron">
                 <strong><small>Operation Platform</small></strong>
                 <div id="board-before-start">
                     <div id="stack-btn" class="btn-group col-md-2">
@@ -57,7 +57,7 @@
                 </div>
             </div>
         </div>
-        <div id="dealer-account" style="height: 130px;">
+        <div id="dealer-account">
             <img src="/img/avatar.jpg" />
             <h4><small> Dealer:
                 <a target="_blank" href="http://blog.chxj.name">Tony </a>
@@ -67,7 +67,7 @@
             </small></h4>
         </div>
         <hr />
-        <div id="player-account" class="col-md-2 jumbotron" style="padding: 10px;">
+        <div id="player-account" class="col-md-2 jumbotron">
             <strong><small> Account </small></strong>
             <small><span class="glyphicon glyphicon-user"> </span></small>
             <img id="player-avatar-show" src="" width="92px" alt=""/>
@@ -76,18 +76,18 @@
             <h3><small>
                 Need Help?
             </small></h3>
-            <span id="advisor" class="label label-info" style="cursor: pointer;"
-                  data-toggle="popover" data-placement="left" data-container="#advisor-tooltip"
+            <span id="advisor" class="label label-info" data-toggle="popover"
+                  data-placement="left" data-container="#advisor-tooltip"
                   data-content="I advise you to 'Hit'" title="My Lord">
                 <small>
                     Advisor
                     <span class="glyphicon glyphicon-tag"></span>
                 </small>
             </span>
-            <div id="advisor-tooltip" style="font-size: 14px;"></div>
+            <div id="advisor-tooltip"></div>
         </div>
 
-        <div id="powered-by" class="col-md-2" style="margin-top: 10px;">
+        <div id="powered-by" class="col-md-2">
             <h4>
                 <small> Fetch the code from
                     <a target="_blank" href="http://github.com/chenxiaojing123/BlackJack">

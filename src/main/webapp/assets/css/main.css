@@ -36,3 +36,39 @@ body {
 .special {
     display: none;
 }
+
+#card-board {
+    padding-left: 40px;
+}
+
+#dealer-card {
+    height: 110px;
+}
+
+#player-card {
+    height: 110px;
+}
+
+#operation-board {
+    padding: 10px;
+}
+
+#dealer-account {
+    height: 130px;
+}
+
+#player-account {
+    padding: 10px;
+}
+
+#advisor {
+    cursor: pointer;
+}
+
+#advisor-tooltip {
+    font-size: 14px;
+}
+
+#powered-by {
+    margin-top: 10px;
+}
