@@ -17,16 +17,17 @@ import java.util.Map;
  */
 public class PokerService {
 
-
-    private static final double NORMAL_RATE = 1.0 ;
-    private static final double BLACKJACK_RATE = 2.0 ;
-    private static final double SPECIAL_RATE = 3.0 ;
+    private static final Double NORMAL_RATE = 1.0 ;
+    private static final Double BLACK_JACK_RATE = 2.0 ;
+    private static final Double FIVE_CARD_RATE = 2.0 ;
+    private static final Double SPECIAL_RATE = 3.0 ;
+    private static final Double INSURANCE_WIN = 2.0;
+    private static final Double INSURANCE_LOSE = -0.5;
 
     @Autowired
     private PokerDao pokerDao;
 
-
-    public String judgeWinner(HttpSession session) {
+    public Map judgeWinner(HttpSession session) {
 
         List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
         List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
@@ -39,35 +40,30 @@ public class PokerService {
             dealerScore += poker.getValue();
         }
 
+        if( isBlackJack("player", session) && isBlackJack("dealer", session) )
+            return ImmutableMap.of("name", "Black Jack", "rate", BLACK_JACK_RATE, "winner","player");
+        else if( isBlackJack("dealer", session) && !isBlackJack("player", session) )
+            return ImmutableMap.of("name", "Black Jack", "rate", BLACK_JACK_RATE, "winner","dealer");
+
+        String winner;
         if ( dealerScore > 21 )
-            return "player";
+            winner = "player";
         else if ( playerScore > dealerScore )
-            return "player";
+            winner = "player";
         else if ( playerScore < dealerScore )
-            return "dealer";
+            winner = "dealer";
         else
-            return "draw";
+            winner = "draw";
+
+        return ImmutableMap.of("name", "normal", "rate", NORMAL_RATE, "winner",winner);
     }
 
 
-    public Map judgeWin(String winner, HttpSession session) {
+    public Map findRoutine(HttpSession session) {
 
-        if( winner.equals("draw") )
-            return ImmutableMap.of("win", "draw", "rate", NORMAL_RATE);
-
-        String win = "normal";
-        double rate = NORMAL_RATE;
-        List<Poker> pokers;
-        if( winner.equals("player") )
-            pokers = (List<Poker>) session.getAttribute("playerCards");
-        else
-            pokers = (List<Poker>) session.getAttribute("playerCards");
-
-        //黑杰克
-        if ( pokers.size() == 2 && (pokers.get(0).getValue()+pokers.get(1).getValue()) == 21 ) {
-            win = "Black Jack";
-            rate = BLACKJACK_RATE;
-        }
+        List<Poker> pokers = (List<Poker>) session.getAttribute("playerCards");
+        String name;
+        Double rate;
 
         //特奖
         Integer sevenNum = 0;
@@ -76,11 +72,24 @@ public class PokerService {
                 sevenNum ++;
         }
         if ( sevenNum.equals(7) ) {
-            win = "Special Win";
+            name = "Special Win";
             rate = SPECIAL_RATE;
+            return ImmutableMap.of("name", name, "rate", rate);
+        }
+        //黑杰克
+        if ( isBlackJack("player", session) ) {
+            name = "Black Jack";
+            rate = BLACK_JACK_RATE;
+            return ImmutableMap.of("name", name, "rate", rate);
+        }
+        //五龙
+        if ( pokers.size() >= 5 ) {
+            name = "Black Jack";
+            rate = FIVE_CARD_RATE;
+            return ImmutableMap.of("name", name, "rate", rate);
         }
 
-        return ImmutableMap.of("win", win, "rate", rate);
+        return null;
     }
 
 
@@ -164,7 +173,6 @@ public class PokerService {
 
     }
 
-
     /**
      * 转换A
      * @param role
@@ -186,7 +194,6 @@ public class PokerService {
         }
     }
 
-
     /**
      * 清牌
      * @param session
@@ -197,5 +204,26 @@ public class PokerService {
         session.setAttribute("usedCards", Lists.newArrayList());
     }
 
+
+    public void surrender(HttpSession session) {
+
+    }
+
+    public Double insurance(HttpSession session) {
+        return INSURANCE_WIN;
+    }
+
+    public Boolean isBlackJack(String role, HttpSession session) {
+        List<Poker> pokers;
+        if( role.equals("player") )
+             pokers = (List<Poker>) session.getAttribute("playerCards");
+        else
+            pokers = (List<Poker>) session.getAttribute("dealerCards");
+
+        if ( pokers.size() == 2 && (pokers.get(0).getValue()+pokers.get(1).getValue()) == 21 )
+            return true;
+
+        return false;
+    }
 
 }

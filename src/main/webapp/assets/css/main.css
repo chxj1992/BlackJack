@@ -42,11 +42,13 @@ body {
 }
 
 #dealer-card {
-    height: 110px;
+    height: 100px;
+    margin-top: 10px;
 }
 
 #player-card {
-    height: 110px;
+    height: 100px;
+    margin-top: 10px;
 }
 
 #operation-board {
@@ -75,4 +77,8 @@ body {
 
 #win-info {
     display: none;
+}
+
+.page-header {
+    margin-top: 20px;
 }

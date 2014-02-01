@@ -14,7 +14,7 @@
                     <span id="dealer-status-tag" class="tag label label-warning"></span>
                 </strong>
                 <br />
-                <div id="dealer-card" style="margin-top: 10px;" class="col-md-offset-1">
+                <div id="dealer-card" class="col-md-offset-1">
                 </div>
 
             </div>
@@ -31,7 +31,7 @@
                 <strong class="col-md-offset-6">
                     <small>Total: </small><span id="total-score">0</span>
                 </strong>
-                <div id="player-card" style="margin-top: 10px;" class="col-md-offset-1">
+                <div id="player-card" class="col-md-offset-1">
                 </div>
             </div>
             <hr />
@@ -68,6 +68,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- Right Part -->
         <div id="dealer-account">
             <img src="/img/avatar.jpg" />
             <h4><small> Dealer:

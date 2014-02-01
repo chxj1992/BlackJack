@@ -25,6 +25,9 @@ import java.util.Map;
 @RequestMapping("/")
 public class IndexController {
 
+    //初始余额
+    private static final int BALANCE = 1000;
+
     @Autowired
     private PokerService pokerService;
 
@@ -38,6 +41,7 @@ public class IndexController {
     public Map setLevel(@RequestParam("level") String level,HttpSession session) {
         pokerService.clearAll(session);
         session.setAttribute("level", level);
+        session.setAttribute("balance", BALANCE);
         return AjaxReturn.success();
     }
 
@@ -58,7 +62,7 @@ public class IndexController {
 
         List<Poker> dealerCards = Lists.newArrayList((List < Poker >)session.getAttribute("dealerCards"));
         //隐藏庄家暗牌
-        dealerCards.set(0, new Poker(0, 0, "0.jpg") );
+        dealerCards.set(0, new Poker(0, 0, "0.jpg"));
 
         ImmutableMap data = ImmutableMap.of(
                 "dealerCards", dealerCards,
@@ -139,15 +143,42 @@ public class IndexController {
         if( session.getAttribute("status").equals("playing") )
             return AjaxReturn.fail("status error");
 
-        String winner = pokerService.judgeWinner(session);
-        Map win = pokerService.judgeWin(winner, session);
-
         List<Poker> dealerCards = (List<Poker>)session.getAttribute("dealerCards");
-        Map data = ImmutableMap.of("win", win.get("win"), "winner", winner, "rate", win.get("rate"), "dealer", dealerCards);
+        Map win = pokerService.judgeWinner(session);
+        Map data = ImmutableMap.of("win", win.get("name"), "rate", win.get("rate"), "winner", win.get("winner"), "dealer", dealerCards );
         pokerService.clearAll(session);
 
-        return AjaxReturn.success("success",data);
+        return AjaxReturn.success("success", data);
     }
+
+
+    @RequestMapping(value="/surrender", method = RequestMethod.POST)
+    @ResponseBody
+    public Map surrender(HttpSession session) {
+
+        List<Poker> player = (List<Poker>)session.getAttribute("playerCards");
+        List<Poker> dealer = (List<Poker>)session.getAttribute("dealerCards");
+        if ( player.size() == 2 && dealer.get(1).getValue() != 11 ) {
+            pokerService.surrender(session);
+            return AjaxReturn.success();
+        }
+
+        return AjaxReturn.fail();
+    }
+
+
+    @RequestMapping(value="/insurance", method = RequestMethod.POST)
+    @ResponseBody
+    public Map insurance(HttpSession session) {
+
+        List<Poker> player = (List<Poker>)session.getAttribute("playerCards");
+        List<Poker> dealer = (List<Poker>)session.getAttribute("dealerCards");
+        if ( player.size() == 2 && (dealer.get(0).getValue()+dealer.get(1).getValue()) == 21 )
+            return AjaxReturn.success(pokerService.insurance(session).toString());
+
+        return AjaxReturn.fail();
+    }
+
 
 
     @RequestMapping(value="/five", method = RequestMethod.POST)
@@ -163,17 +194,5 @@ public class IndexController {
     }
 
 
-    @RequestMapping(value="/insurance", method = RequestMethod.POST)
-    @ResponseBody
-    public Map insurance(HttpSession session) {
-
-        List<Poker> player = (List<Poker>)session.getAttribute("playerCards");
-        List<Poker> dealer = (List<Poker>)session.getAttribute("dealerCards");
-        if ( player.size() == 2 && (dealer.get(0).getValue()+dealer.get(1).getValue()) == 21 ) {
-            return AjaxReturn.success("insurance", ImmutableMap.of("rate", 0.5));
-        }
-
-        return AjaxReturn.fail();
-    }
 
 }

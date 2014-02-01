@@ -195,6 +195,7 @@ define(['jquery','backbone'],function(){
                     } else {
                         $("#mask").show();
                         $("#alert-draw").fadeIn();
+                        localStorage.setItem("balance",parseInt(localStorage.getItem("balance"))+parseInt(localStorage.getItem("bet")));
                     }
 
                     $("#balance-show").text(localStorage.getItem('balance'));

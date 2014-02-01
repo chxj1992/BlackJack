@@ -66,10 +66,13 @@ define(['model','jquery','backbone'],function(PokerModel){
         },
 
         render : function() {
-            if ( this.model.get('role') == 'player' )
-                $("#player-card").append('<img src="/img/poker/'+ this.model.get('fileName')+'" value="'+this.model.get('value')+'" class="img-thumbnail" width="80px" />' );
-            else
-                $("#dealer-card").append('<img src="/img/poker/'+ this.model.get('fileName')+'" value="'+this.model.get('value')+'" class="img-thumbnail" width="80px" />' );
+            if ( this.model.get('role') == 'player' ){
+                $("#player-card").append('<img src="/img/poker/'+ this.model.get('fileName')+'" value="'+
+                    this.model.get('value')+'" class="img-thumbnail" width="75px" />' );
+            } else {
+                $("#dealer-card").append('<img src="/img/poker/'+ this.model.get('fileName')+'" value="'+
+                    this.model.get('value')+'" class="img-thumbnail" width="75px" />' );
+            }
         },
 
         homePage : function(){
