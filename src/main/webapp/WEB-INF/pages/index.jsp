@@ -9,7 +9,12 @@
         <div id="card-board" class="col-md-7">
             <div id="dealer-part" class="row">
                 <strong>Dealer</strong>
-                <div id="dealer-card" class="col-md-offset-1">
+                <strong>
+                    <span id="dealer-card-tag" class="tag label label-danger"></span>
+                    <span id="dealer-status-tag" class="tag label label-warning"></span>
+                </strong>
+                <br />
+                <div id="dealer-card" style="margin-top: 10px;" class="col-md-offset-1">
                 </div>
 
             </div>
@@ -19,8 +24,14 @@
 
             <div id="player-part" class="row">
                 <strong>Player</strong>
-                <strong class="col-md-offset-7"><small>Total: </small><span id="total-score">0</span></strong>
-                <div id="player-card" class="col-md-offset-1">
+                <strong>
+                    <span id="player-card-tag" class="tag label label-danger"></span>
+                    <span id="player-status-tag" class="tag label label-warning"></span>
+                </strong>
+                <strong class="col-md-offset-6">
+                    <small>Total: </small><span id="total-score">0</span>
+                </strong>
+                <div id="player-card" style="margin-top: 10px;" class="col-md-offset-1">
                 </div>
             </div>
             <hr />

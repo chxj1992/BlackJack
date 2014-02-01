@@ -1,6 +1,7 @@
 package controller;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import model.Poker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -55,14 +56,13 @@ public class IndexController {
         }
         pokerService.initOpenCards(session);
 
-        List<Poker> dealerCards = (List<Poker>)session.getAttribute("dealerCards");
-        List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
+        List<Poker> dealerCards = Lists.newArrayList((List < Poker >)session.getAttribute("dealerCards"));
         //隐藏庄家暗牌
         dealerCards.set(0, new Poker(0, 0, "0.jpg") );
 
         ImmutableMap data = ImmutableMap.of(
                 "dealerCards", dealerCards,
-                "playerCards", playerCards);
+                "playerCards", (List<Poker>) session.getAttribute("playerCards"));
 
         return AjaxReturn.success("data", data);
     }
@@ -75,7 +75,7 @@ public class IndexController {
         if( session.getAttribute("undealCards") == null )
             return AjaxReturn.fail("timeout");
 
-        if( !session.getAttribute("status").equals("playing") )
+        if( role.equals("player") && !session.getAttribute("status").equals("playing") )
             return AjaxReturn.fail("status error");
 
         List<Poker> usedCards = (List<Poker>) session.getAttribute("usedCards");
@@ -91,7 +91,7 @@ public class IndexController {
         else
             dealerCards.add(poker);
 
-        Boolean isBust = pokerService.isBust(role, session);
+        Integer totalScore = pokerService.totalScore(role, session);
 
         if ( role.equals("player") )
             poker = playerCards.get(playerCards.size()-1);
@@ -99,9 +99,11 @@ public class IndexController {
             poker = dealerCards.get(dealerCards.size()-1);
 
         usedCards.add(poker);
-        session.setAttribute("usedCards", usedCards);
 
-        if (isBust) {
+        if ( role.equals("dealer") && totalScore>16 && totalScore<=21 )
+            return AjaxReturn.fail("stop", poker);
+
+        if (totalScore>21) {
             session.setAttribute("status", "bust");
             return AjaxReturn.fail("bust", poker);
         } else {
@@ -124,7 +126,7 @@ public class IndexController {
         session.setAttribute("status","double");
         List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
         if( playerCards.size() == 2 )
-            return this.hitCards("player", session);
+            return hitCards("player", session);
 
         return AjaxReturn.fail();
     }
@@ -134,14 +136,15 @@ public class IndexController {
     @ResponseBody
     public Map judge(HttpSession session){
 
-        if( !session.getAttribute("status").equals("playing") )
+        if( session.getAttribute("status").equals("playing") )
             return AjaxReturn.fail("status error");
 
         String winner = pokerService.judgeWinner(session);
-        double rate = pokerService.judgeBetRate(winner, session);
+        Map win = pokerService.judgeWin(winner, session);
 
+        List<Poker> dealerCards = (List<Poker>)session.getAttribute("dealerCards");
+        Map data = ImmutableMap.of("win", win.get("win"), "winner", winner, "rate", win.get("rate"), "dealer", dealerCards);
         pokerService.clearAll(session);
-        Map data = ImmutableMap.of("winner", winner, "rate", rate, "dealer", (List<Poker>)session.getAttribute("dealerCards"));
 
         return AjaxReturn.success("success",data);
     }
@@ -149,10 +152,28 @@ public class IndexController {
 
     @RequestMapping(value="/five", method = RequestMethod.POST)
     @ResponseBody
-    public Map isFiveCard(HttpSession session) {
+    public Map fiveCardWin(HttpSession session) {
 
-        return AjaxReturn.success();
+        List<Poker> pokers = (List<Poker>)session.getAttribute("playerCards");
+        if ( pokers.size() == 5 ) {
+            return AjaxReturn.success("five card", ImmutableMap.of("rate", 0.5) );
+        }
+
+        return AjaxReturn.fail();
     }
 
+
+    @RequestMapping(value="/insurance", method = RequestMethod.POST)
+    @ResponseBody
+    public Map insurance(HttpSession session) {
+
+        List<Poker> player = (List<Poker>)session.getAttribute("playerCards");
+        List<Poker> dealer = (List<Poker>)session.getAttribute("dealerCards");
+        if ( player.size() == 2 && (dealer.get(0).getValue()+dealer.get(1).getValue()) == 21 ) {
+            return AjaxReturn.success("insurance", ImmutableMap.of("rate", 0.5));
+        }
+
+        return AjaxReturn.fail();
+    }
 
 }

@@ -1,5 +1,6 @@
 package service;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import dao.PokerDao;
 import model.Poker;
@@ -8,6 +9,7 @@ import utils.Pokers;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Author: chen
@@ -37,22 +39,24 @@ public class PokerService {
             dealerScore += poker.getValue();
         }
 
-        if ( playerScore > dealerScore ) {
+        if ( dealerScore > 21 )
             return "player";
-        } else if ( playerScore < dealerScore ) {
+        else if ( playerScore > dealerScore )
+            return "player";
+        else if ( playerScore < dealerScore )
             return "dealer";
-        } else {
+        else
             return "draw";
-        }
     }
 
 
-    public double judgeBetRate(String winner, HttpSession session) {
+    public Map judgeWin(String winner, HttpSession session) {
 
-        double rate = NORMAL_RATE;
         if( winner.equals("draw") )
-            return rate;
+            return ImmutableMap.of("win", "draw", "rate", NORMAL_RATE);
 
+        String win = "normal";
+        double rate = NORMAL_RATE;
         List<Poker> pokers;
         if( winner.equals("player") )
             pokers = (List<Poker>) session.getAttribute("playerCards");
@@ -60,8 +64,10 @@ public class PokerService {
             pokers = (List<Poker>) session.getAttribute("playerCards");
 
         //黑杰克
-        if ( pokers.size() == 2 && (pokers.get(0).getValue()+pokers.get(1).getValue()) == 21 )
+        if ( pokers.size() == 2 && (pokers.get(0).getValue()+pokers.get(1).getValue()) == 21 ) {
+            win = "Black Jack";
             rate = BLACKJACK_RATE;
+        }
 
         //特奖
         Integer sevenNum = 0;
@@ -69,10 +75,12 @@ public class PokerService {
             if ( poker.getValue().equals(7) )
                 sevenNum ++;
         }
-        if ( sevenNum.equals(7) )
+        if ( sevenNum.equals(7) ) {
+            win = "Special Win";
             rate = SPECIAL_RATE;
+        }
 
-        return rate;
+        return ImmutableMap.of("win", win, "rate", rate);
     }
 
 
@@ -113,20 +121,20 @@ public class PokerService {
         for ( int i=0; i<4; i++ )
             undealCards.remove(0);
 
-        session.setAttribute("undealCards", undealCards);
         session.setAttribute("dealerCards", dealerCards);
         session.setAttribute("playerCards", playerCards);
         session.setAttribute("usedCards", usedCards);
+
     }
 
 
     /**
-     * 是否爆牌,如果爆牌则尝试转换A
+     * 获取当前总分,如果爆牌则尝试转换A
      * @param role
      * @param session
      * @return
      */
-    public Boolean isBust(String role, HttpSession session) {
+    public Integer totalScore(String role, HttpSession session) {
 
         List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
         List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
@@ -152,10 +160,8 @@ public class PokerService {
             convertACard(role,session);
         }
 
-        if ( total > 21 )
-            return true;
-        else
-            return false;
+        return total;
+
     }
 
 
@@ -166,13 +172,11 @@ public class PokerService {
      */
     public void convertACard(String role, HttpSession session){
 
-        List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
-        List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
         List<Poker> pokers;
         if (role.equals("player"))
-            pokers = playerCards;
+            pokers = (List<Poker>) session.getAttribute("playerCards");
         else
-            pokers = dealerCards;
+            pokers = (List<Poker>) session.getAttribute("dealerCards");
 
         for ( Poker poker : pokers ) {
             if( poker.getValue().equals(11) ) {
@@ -180,12 +184,6 @@ public class PokerService {
                 break;
             }
         }
-
-        if (role.equals("player"))
-            session.setAttribute("playerCards", pokers);
-        else
-            session.setAttribute("dealerCards", pokers);
-
     }
 
 

@@ -108,7 +108,9 @@ define(['model','jquery','backbone'],function(PokerModel){
         },
 
         surrender : function(){
-            this.toBeforeStart();
+            $("#mask").show();
+            $(".bet-lose").text(localStorage.getItem("bet"));
+            $("#alert-surrender").fadeIn();
         },
 
         stand : function(){
@@ -129,7 +131,10 @@ define(['model','jquery','backbone'],function(PokerModel){
      * Private Functions
      *********************************************/
         toBeforeStart : function(){
+            $("#board-playing > button").removeAttr("disabled");
+            $(".tag").text('');
             $(".alert").fadeOut();
+            $("#mask").hide();
             $("#player-card").html('');
             $("#dealer-card").html('');
             $("#total-score").text(0);
