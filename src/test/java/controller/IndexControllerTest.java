@@ -36,7 +36,7 @@ public class IndexControllerTest {
     @Test
     public void the_first_time_open_card_undeal_card_num_should_be_48() throws Exception {
 
-        controller.openCards(session);
+        controller.openCards(10, session);
         List<Integer> undealCards = (List<Integer>) session.getAttribute("undealCards");
         assertThat(undealCards.size(), is(48));
     }
@@ -44,7 +44,7 @@ public class IndexControllerTest {
     @Test
     public void dealer_open_card_num_should_be_2() throws Exception {
 
-        controller.openCards(session);
+        controller.openCards(10, session);
         List<Integer> dealerCards = (List<Integer>) session.getAttribute("dealerCards");
         assertThat(dealerCards.size(), is(2));
     }
@@ -52,7 +52,7 @@ public class IndexControllerTest {
     @Test
     public void player_open_card_num_should_be_2() throws Exception {
 
-        controller.openCards(session);
+        controller.openCards(10, session);
         List<Integer> playerCards = (List<Integer>) session.getAttribute("playerCards");
         assertThat(playerCards.size(), is(2));
     }
@@ -64,7 +64,7 @@ public class IndexControllerTest {
         for (int i = 0; i<20; i++)
             undealCards.add(new Integer(i));
         session.setAttribute("undealCards",undealCards);
-        controller.openCards(session);
+        controller.openCards(10, session);
         undealCards = (List<Integer>) session.getAttribute("undealCards");
         assertThat(undealCards.size(), is(16));
     }
@@ -77,7 +77,7 @@ public class IndexControllerTest {
         for (int i = 0; i<8; i++)
             undealCards.add(new Integer(i));
         session.setAttribute("undealCards",undealCards);
-        controller.openCards(session);
+        controller.openCards(10, session);
         undealCards = (List<Integer>) session.getAttribute("undealCards");
         assertThat(undealCards.size(), is(48));
     }
@@ -91,7 +91,7 @@ public class IndexControllerTest {
         for (int i = 0; i<20; i++)
             undealCards.add(new Integer(i));
         session.setAttribute("undealCards",undealCards);
-        controller.openCards(session);
+        controller.openCards(10, session);
         undealCards = (List<Integer>) session.getAttribute("undealCards");
         assertThat(undealCards.size(), is(48));
     }

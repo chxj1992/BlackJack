@@ -2,6 +2,7 @@ package service;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import dao.PokerDao;
 import model.Poker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,20 +18,25 @@ import java.util.Map;
  */
 public class PokerService {
 
-    private static final Double NORMAL_RATE = 1.0 ;
-    private static final Double BLACK_JACK_RATE = 2.0 ;
-    private static final Double FIVE_CARD_RATE = 2.0 ;
-    private static final Double SPECIAL_RATE = 3.0 ;
-    private static final Double INSURANCE_WIN = 2.0;
-    private static final Double INSURANCE_LOSE = -0.5;
+    private static final double NORMAL_RATE = 1.0 ;
+    private static final double BLACK_JACK_RATE = 2.0 ;
+    private static final double FIVE_CARD_RATE = 2.0 ;
+    private static final double SPECIAL_RATE = 3.0 ;
+    private static final double INSURANCE_WIN = 2.0;
+    private static final double INSURANCE_LOSE = -0.5;
+    private static final double SURRENDER_RATE = -0.5;
+
 
     @Autowired
     private PokerDao pokerDao;
 
-    public Map judgeWinner(HttpSession session) {
+    public Map judgeWin(HttpSession session) {
+
+        Integer bet = (Integer) session.getAttribute("bet");
 
         List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
         List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
+
         Integer playerScore = 0;
         for ( Poker poker : playerCards ){
             playerScore += poker.getValue();
@@ -40,31 +46,35 @@ public class PokerService {
             dealerScore += poker.getValue();
         }
 
-        if( isBlackJack("player", session) && isBlackJack("dealer", session) )
-            return ImmutableMap.of("name", "Black Jack", "rate", BLACK_JACK_RATE, "winner","player");
-        else if( isBlackJack("dealer", session) && !isBlackJack("player", session) )
-            return ImmutableMap.of("name", "Black Jack", "rate", BLACK_JACK_RATE, "winner","dealer");
+        if( isBlackJack("player", session) && !isBlackJack("dealer", session) ) {
+            return ImmutableMap.of("name", "Black Jack", "money", (int)((BLACK_JACK_RATE+1)*bet) );
+        } else if( isBlackJack("dealer", session) && !isBlackJack("player", session) ) {
+            return ImmutableMap.of("name", "Black Jack", "money", -(int)((BLACK_JACK_RATE-1)*bet) );
+        }
 
-        String winner;
         if ( dealerScore > 21 )
-            winner = "player";
+            return ImmutableMap.of("name", "Normal", "money", (int)((NORMAL_RATE+1)*bet) );
         else if ( playerScore > dealerScore )
-            winner = "player";
+            return ImmutableMap.of("name", "Normal", "money", (int)((NORMAL_RATE+1)*bet) );
         else if ( playerScore < dealerScore )
-            winner = "dealer";
+            return ImmutableMap.of("name", "Normal", "money", -(int)((NORMAL_RATE-1)*bet) );
         else
-            winner = "draw";
+            return ImmutableMap.of("name", "Draw", "money", bet);
 
-        return ImmutableMap.of("name", "normal", "rate", NORMAL_RATE, "winner",winner);
     }
 
 
-    public Map findRoutine(HttpSession session) {
+    public Map checkRoutine(String role, HttpSession session) {
 
-        List<Poker> pokers = (List<Poker>) session.getAttribute("playerCards");
-        String name;
-        Double rate;
+        List<Poker> pokers;
+        if ( role.equals("player") )
+            pokers = (List<Poker>) session.getAttribute("playerCards");
+        else
+            pokers = (List<Poker>) session.getAttribute("dealerCards");
 
+        Map routine = Maps.newHashMap();
+        routine.put("name", "Normal");
+        routine.put("rate", NORMAL_RATE);
         //特奖
         Integer sevenNum = 0;
         for( Poker poker : pokers ) {
@@ -72,24 +82,22 @@ public class PokerService {
                 sevenNum ++;
         }
         if ( sevenNum.equals(7) ) {
-            name = "Special Win";
-            rate = SPECIAL_RATE;
-            return ImmutableMap.of("name", name, "rate", rate);
+            routine.put("name", "Special Win");
+            routine.put("rate", SPECIAL_RATE);
         }
         //黑杰克
-        if ( isBlackJack("player", session) ) {
-            name = "Black Jack";
-            rate = BLACK_JACK_RATE;
-            return ImmutableMap.of("name", name, "rate", rate);
+        if ( isBlackJack(role, session) ) {
+            routine.put("name", "Black Jack");
+            routine.put("rate", BLACK_JACK_RATE);
         }
         //五龙
         if ( pokers.size() >= 5 ) {
-            name = "Black Jack";
-            rate = FIVE_CARD_RATE;
-            return ImmutableMap.of("name", name, "rate", rate);
+            routine.put("name", "Five Card");
+            routine.put("rate", FIVE_CARD_RATE);
         }
 
-        return null;
+        session.setAttribute(role+"Routine", routine);
+        return routine;
     }
 
 
@@ -97,7 +105,7 @@ public class PokerService {
      * 重新洗牌
      * @param session
      */
-    public void initCards(HttpSession session) {
+    public void shuffleCards(HttpSession session) {
         List<Poker> cards = pokerDao.getPokers(Pokers.init());
 
         session.setAttribute("undealCards", cards);
@@ -111,7 +119,7 @@ public class PokerService {
      * 初始化开牌session
      * @param session
      */
-    public void initOpenCards(HttpSession session) {
+    public void initCards(HttpSession session) {
 
         List<Poker> undealCards = (List<Poker>) session.getAttribute("undealCards");
 
@@ -201,16 +209,30 @@ public class PokerService {
     public void clearAll(HttpSession session){
         session.setAttribute("dealerCards", Lists.newArrayList());
         session.setAttribute("playerCards", Lists.newArrayList());
-        session.setAttribute("usedCards", Lists.newArrayList());
     }
 
-
-    public void surrender(HttpSession session) {
-
+    /**
+     * 投降
+     * @param session
+     * @return
+     */
+    public int surrender(HttpSession session) {
+        Integer bet = (Integer) session.getAttribute("bet");
+        return (int)(SURRENDER_RATE * bet);
     }
 
-    public Double insurance(HttpSession session) {
-        return INSURANCE_WIN;
+    /**
+     * 买保险
+     * @param session
+     * @return
+     */
+    public int insurance(HttpSession session) {
+        Integer bet = (Integer) session.getAttribute("bet");
+        List<Poker> dealer = (List<Poker>) session.getAttribute("dealerCards");
+        if(dealer.get(0).getValue()+dealer.get(1).getValue() == 21)
+            return (int)(INSURANCE_WIN * bet);
+        else
+            return (int)(INSURANCE_LOSE * bet);
     }
 
     public Boolean isBlackJack(String role, HttpSession session) {

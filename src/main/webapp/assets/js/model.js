@@ -20,21 +20,29 @@ define(['jquery','backbone'],function(){
                 },
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 success : function(data){
-                    if ( data.status == 0 && data.info == "timeout" ) {
+                    if ( data.status == 0 && data.data.info == "timeout" ) {
                         $("#mask").show();
                         $("#alert-timeout").fadeIn();
                         return;
                     }
                     var localPlayer = JSON.parse(localStorage.getItem("player"));
-                    localPlayer[Object.keys(localPlayer).length] = data.data;
-                    model.set({'pokerId':data.data.pokerId,
-                        'value' : data.data.value,
-                        'fileName' : data.data.fileName,
+                    localPlayer.cards[Object.keys(localPlayer.cards).length] = data.data.poker;
+                    localPlayer.routine = data.data.routine;
+                    var poker = data.data.poker;
+                    model.set({'pokerId': poker.pokerId,
+                        'value' : poker.value,
+                        'fileName' : poker.fileName,
                         'role' : 'player'});
                     localStorage.setItem("player", JSON.stringify(localPlayer));
                     $("#total-score").text(model.getScore("player"));
+                    var routine = data.data.routine;
+                    if( routine.name != "Normal" ) {
+                        $("#player-card-tag").text(routine.name);
+                        $("#routine").text(routine.name);
+                        $("#routine").show();
+                    }
 
-                    if ( data.status == 0 && data.info == "bust" ) {
+                    if ( data.status == 0 && data.data.info == "Bust" ) {
                         $("#player-status-tag").text("Bust");
                         $("#mask").show();
                         $(".bet-lose").text(localStorage.getItem("bet"));
@@ -63,22 +71,30 @@ define(['jquery','backbone'],function(){
         },
 
         openCards : function() {
-            $("#player-status-tag").text("Open Card");
+            $("#player-status-tag").text("Open card");
             var model = this;
             localStorage.setItem('bet', $("#bet-value").text());
-            localStorage.setItem('balance', localStorage.getItem('balance') - $("#bet-value").text());
-            localStorage.setItem("player", JSON.stringify({}));
-            localStorage.setItem("dealer", JSON.stringify({}));
+            localStorage.setItem('balance', parseInt(localStorage.getItem('balance')) - parseInt($("#bet-value").text()));
+            localStorage.setItem("player", JSON.stringify({cards:{}, routine: {}}));
+            localStorage.setItem("dealer", JSON.stringify({cards:{}, routine: {}}));
+            $("#balance-show").text(localStorage.getItem('balance'));
             $.ajax({
                 url : "/openCards",
                 type : "POST",
                 dataType : 'Json',
+                data : {
+                    "bet" : parseInt(localStorage.getItem("bet"))
+                },
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 success : function(data){
+                    if ( data.status == 0 )  {
+                        localStorage.removeItem('userInfo');
+                        window.location.reload();
+                    }
                     var localPlayer = JSON.parse(localStorage.getItem("player"));
-                    var player = data.data.playerCards;
+                    var player = data.data.player.cards;
                     for (var i=0; i<player.length; i++) {
-                        localPlayer[i] = player[i];
+                        localPlayer.cards[i] = player[i];
                         model.set({'pokerId': player[i].pokerId,
                             'value' : player[i].value,
                             'fileName' : player[i].fileName,
@@ -86,11 +102,17 @@ define(['jquery','backbone'],function(){
                     }
                     localStorage.setItem("player", JSON.stringify(localPlayer));
                     $("#total-score").text(model.getScore("player"));
+                    var routine = data.data.player.routine;
+                    if( routine.name != "Normal" ) {
+                        $("#player-card-tag").text(routine.name);
+                        $("#routine").text(routine.name);
+                        $("#routine").show();
+                    }
 
                     var localDealer = JSON.parse(localStorage.getItem("dealer"));
-                    var dealer = data.data.dealerCards;
+                    var dealer = data.data.dealer.cards;
                     for (var i=0; i<dealer.length; i++) {
-                        localDealer[i] = dealer[i];
+                        localDealer.cards[i] = dealer[i];
                         model.set({'pokerId': dealer[i].pokerId,
                             'value' : dealer[i].value,
                             'fileName' : dealer[i].fileName,
@@ -102,7 +124,7 @@ define(['jquery','backbone'],function(){
         },
 
         getScore : function(role) {
-            var cards = JSON.parse(localStorage.getItem(role));
+            var cards = JSON.parse(localStorage.getItem(role)).cards;
             var total = 0;
             var aNum = 0;
             for (var i=0; i<Object.keys(cards).length; i++ ) {
@@ -131,19 +153,28 @@ define(['jquery','backbone'],function(){
                     },
                     success : function(data){
                         var localDealer = JSON.parse(localStorage.getItem("dealer"));
-                        localDealer[Object.keys(localDealer).length] = data.data;
-                        model.set({'pokerId':data.data.pokerId,
-                            'value' : data.data.value,
-                            'fileName' : data.data.fileName,
+                        localDealer.cards[Object.keys(localDealer.cards).length] = data.data.poker;
+                        localDealer.routine = data.data.routine;
+                        var poker = data.data.poker;
+                        model.set({'pokerId':poker.pokerId,
+                            'value' : poker.value,
+                            'fileName' : poker.fileName,
                             'role' : 'dealer'});
                         localStorage.setItem("dealer", JSON.stringify(localDealer));
+                        var routine = data.data.routine;
+
                         if ( data.status == 1 ) {
-                            setTimeout(function(){
-                                    model.dealerHit();
-                                } , 2000);
+                            if( routine.name != "Normal" ) {
+                                $("#dealer-card-tag").text(routine.name);
+                                model.judge();
+                            } else {
+                                setTimeout(function(){
+                                        model.dealerHit();
+                                    }, 2000);
+                            }
                         } else if ( data.status == 0 ) {
                             setTimeout(function(){
-                                $("#dealer-status-tag").text("Stand");
+                                $("#dealer-status-tag").text(data.data.info);
                                 model.judge();
                             }, 2000 );
                         }
@@ -153,9 +184,8 @@ define(['jquery','backbone'],function(){
 
         judge : function() {
             $("#player-status-tag").text("Judging...");
-            $("#dealer-status-tag").text("Judging...");
             var model = this;
-            localStorage.setItem("dealer", JSON.stringify({}));
+            localStorage.setItem("dealer", JSON.stringify({cards:{}, routine:{}}));
             $.ajax({
                 url : "/judge",
                 type : "POST",
@@ -167,35 +197,35 @@ define(['jquery','backbone'],function(){
                 success : function(data){
                     $("#dealer-card").html('');
                     var localDealer = JSON.parse(localStorage.getItem("dealer"));
+                    localDealer.routine = data.data.routine;
                     var dealer = data.data.dealer;
                     for (var i=0; i<dealer.length; i++) {
-                        localDealer[i] = dealer[i];
+                        localDealer.cards[i] = dealer[i];
                         model.set({'pokerId': dealer[i].pokerId,
                             'value' : dealer[i].value,
                             'fileName' : dealer[i].fileName,
                             'role' : 'dealer'});
                     }
                     localStorage.setItem("dealer", JSON.stringify(localDealer));
-                    if ( data.data.winner == "player" ) {
-                        if(data.data.win != "normal"){
-                            $("#win-info>strong").text(data.data.win);
-                            $("#win-info").show();
-                        }
-                        var winBet = parseInt(parseInt(localStorage.getItem("bet"))*data.data.rate);
-                        $(".bet-win").text(winBet);
-                        localStorage.setItem("balance",parseInt(localStorage.getItem("balance"))+parseInt(localStorage.getItem("bet"))+winBet);
-                        $("#mask").show();
+
+                    if(data.data.name != "Normal"){
+                        $("#win-info>strong").text(data.data.name);
+                        $("#win-info").show();
+                    }
+                    var money = parseInt(data.data.money);
+                    var bet = parseInt(localStorage.getItem("bet"));
+                    $("#mask").show();
+                    if(money > bet) {
+                        $(".bet-win").text(money-bet);
+                        localStorage.setItem("balance",parseInt(localStorage.getItem("balance"))+money);
                         $("#alert-win").fadeIn();
-                    } else if ( data.winner == "dealer" ) {
-                        var winLose = parseInt(parseInt(localStorage.getItem("bet"))*data.data.rate);
-                        $(".bet-lose").text(winLose);
-                        localStorage.setItem("balance",parseInt(localStorage.getItem("balance"))+parseInt(localStorage.getItem("bet"))-winBet);
-                        $("#mask").show();
+                    } else if (money < bet) {
+                        $(".bet-lose").text(bet-money);
+                        localStorage.setItem("balance",parseInt(localStorage.getItem("balance"))+money);
                         $("#alert-lose").fadeIn();
                     } else {
-                        $("#mask").show();
-                        $("#alert-draw").fadeIn();
-                        localStorage.setItem("balance",parseInt(localStorage.getItem("balance"))+parseInt(localStorage.getItem("bet")));
+                       localStorage.setItem("balance",parseInt(localStorage.getItem("balance"))+money);
+                       $("#alert-draw").fadeIn();
                     }
 
                     $("#balance-show").text(localStorage.getItem('balance'));

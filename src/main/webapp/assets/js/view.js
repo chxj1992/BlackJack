@@ -84,9 +84,13 @@ define(['model','jquery','backbone'],function(PokerModel){
         },
 
         openCards : function(){
-            this.toFirstRound();
-            this.model.openCards();
+            $("#open-cards").attr("disabled", "disabled");
             $("#balance-show").text(localStorage.getItem('balance'));
+            var view = this;
+            setTimeout(function(){
+                view.toFirstRound();
+                view.model.openCards();
+            }, 500);
         },
 
         retry : function(){
@@ -135,6 +139,7 @@ define(['model','jquery','backbone'],function(PokerModel){
      *********************************************/
         toBeforeStart : function(){
             $("#board-playing > button").removeAttr("disabled");
+            $("#open-cards").removeAttr("disabled");
             $(".tag").text('');
             $(".alert").fadeOut();
             $("#mask").hide();
