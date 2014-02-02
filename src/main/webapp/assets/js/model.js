@@ -9,6 +9,8 @@ define(['jquery','backbone'],function(){
         },
 
         hit : function() {
+            localStorage.setItem("status", "hit");
+            $("#player-status-tag").text("Judging...");
             $("#player-status-tag").text("Hitting...");
             $(".special").hide();
             var model = this;
@@ -16,6 +18,7 @@ define(['jquery','backbone'],function(){
                 url : "/hit",
                 type : "POST",
                 dataType : 'Json',
+                async : false,
                 data : {
                    'role' : 'player'
                 },
@@ -26,19 +29,19 @@ define(['jquery','backbone'],function(){
                         $("#alert-timeout").fadeIn();
                         return;
                     }
-
                     if ( data.status == 0 && data.data.info == "Bust" ) {
                         $("#player-status-tag").text("Bust");
                         $("#mask").show();
                         $(".bet-lose").text(localStorage.getItem("bet"));
                         $("#alert-bust").fadeIn();
+                        localStorage.setItem("status", "bust");
                     }
-
                     model.updatePlayerCard(model, data.data);
                     model.checkRoutine(model, data.data);
                 }
             });
 
+            return localStorage.getItem("status");
         },
 
         updatePlayerCard : function(model, data) {
@@ -60,14 +63,15 @@ define(['jquery','backbone'],function(){
                 $("#player-card-tag").text(routine.name);
             }
             if(routine.name == "Black Jack") {
-                $("#routine").text(routine.name);
-                $("#routine").val("blackJack");
-                $("#routine").show();
+                $("#black-jack").text(routine.name);
+                $("#black-jack").val("blackJack");
+                $("#black-jack").show();
             }
 
         },
 
         stand : function() {
+            localStorage.setItem("status", "stand");
             $("#player-status-tag").text("Stand");
             var model = this;
             $.ajax({
@@ -85,6 +89,7 @@ define(['jquery','backbone'],function(){
         },
 
         doubleCard : function() {
+            localStorage.setItem("balance", localStorage.getItem("balance")-localStorage.getItem("bet"));
             localStorage.setItem("bet", parseInt(localStorage.getItem("bet"))*2 );
             var model = this;
             $.ajax({
@@ -93,16 +98,17 @@ define(['jquery','backbone'],function(){
                 dataType : 'Json',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 success : function(){
-                    model.hit();
-                    setTimeout(function(){
+                    var res = model.hit();
+                    alert(res);
+                    if ( res != "bust" )
                         model.stand();
-                    }, 1000);
                 }
             });
 
         },
 
         openCards : function() {
+            localStorage.setItem("status", "open");
             $("#player-status-tag").text("Open card");
             var model = this;
             localStorage.setItem('bet', $("#bet-value").text());
@@ -223,9 +229,6 @@ define(['jquery','backbone'],function(){
                 type : "POST",
                 dataType : 'Json',
                 headers : {'Content-Type': 'application/x-www-form-urlencoded'},
-                data : {
-                    'role' : 'dealer'
-                },
                 success : function(data){
                     $("#dealer-card").html('');
                     var localDealer = JSON.parse(localStorage.getItem("dealer"));

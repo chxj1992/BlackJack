@@ -70,6 +70,7 @@ public class IndexController {
         List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
         //隐藏庄家暗牌
         dealerCards.set(0, new Poker(0, 0, "0.jpg"));
+        pokerService.checkRoutine("dealer", session);
         Map routine = pokerService.checkRoutine("player", session);
         ImmutableMap data = ImmutableMap.of(
                 "dealer", ImmutableMap.of("cards", dealerCards),
@@ -179,9 +180,6 @@ public class IndexController {
     @ResponseBody
     public Map judge(HttpSession session){
 
-        if( session.getAttribute("status").equals("playing") )
-            return AjaxReturn.fail("status error");
-
         List<Poker> dealerCards = (List<Poker>)session.getAttribute("dealerCards");
         Map win = pokerService.judgeWin(session);
         Map data = ImmutableMap.of("name", win.get("name"), "money", win.get("money"), "dealer", dealerCards );
@@ -206,7 +204,10 @@ public class IndexController {
 
         Integer bet = (Integer) session.getAttribute("bet");
         Integer balance = (Integer) session.getAttribute("balance");
-        Map data = ImmutableMap.of("name", "Black Jack", "money", (int)(balance+(1+1.5)*bet) );
+
+        balance = (int)(balance+(1+1.5) * bet);
+        session.setAttribute("balance", balance);
+        Map data = ImmutableMap.of("name", "Black Jack", "money", balance);
         return AjaxReturn.success(data);
     }
 

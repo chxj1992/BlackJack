@@ -41,12 +41,12 @@ public class PokerService {
 
         // 例牌胜出
         if( dealerRoutine.get("name") != "Normal" && playerRoutine.get("name") == "Normal" ) {
-            return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance - (Double.parseDouble((String)dealerRoutine.get("rate"))-1)*bet) );
+            return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance - ( (Double)dealerRoutine.get("rate")-1)*bet) );
         } else if( dealerRoutine.get("name") == "Normal" && playerRoutine.get("name") != "Normal" ) {
-            return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance + (Double.parseDouble((String)playerRoutine.get("rate"))+1)*bet) );
+            return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance + ( (Double)playerRoutine.get("rate")+1)*bet) );
         } else if( dealerRoutine.get("name") != "Normal" && playerRoutine.get("name") != "Normal") {
-            Double playerRate = Double.parseDouble((String)playerRoutine.get("rate"));
-            Double dealerRate = Double.parseDouble((String)dealerRoutine.get("rate"));
+            Double playerRate = (Double)playerRoutine.get("rate");
+            Double dealerRate = (Double)dealerRoutine.get("rate");
             if( playerRate - dealerRate > 0 ) {
                 return ImmutableMap.of("name", playerRoutine.get("name"), "money", (int)(balance + (playerRate-dealerRate+1)*bet) );
             } else if( playerRate - dealerRate < 0 ){
@@ -86,10 +86,7 @@ public class PokerService {
         else
             pokers = (List<Poker>) session.getAttribute("dealerCards");
 
-        Map<String, Serializable> newRoutine = Maps.newHashMap();
-        newRoutine.put("name", "Normal");
-        newRoutine.put("rate", NORMAL_RATE);
-        Map<String, Serializable> routine = session.getAttribute(role+"Routine") != null ? (Map<String,Serializable>)session.getAttribute(role+"Routine") : newRoutine;
+        Map routine = (Map)session.getAttribute(role+"Routine");
 
         //五龙
         if ( pokers.size() >= 5 ) {
@@ -136,6 +133,10 @@ public class PokerService {
      * @param session
      */
     public void initCards(HttpSession session) {
+
+        Map newRoutine = ImmutableMap.of("name", "Normal", "rate", NORMAL_RATE);
+        session.setAttribute("playerRoutine", Maps.newHashMap(newRoutine));
+        session.setAttribute("dealerRoutine", Maps.newHashMap(newRoutine));
 
         List<Poker> undealCards = (List<Poker>) session.getAttribute("undealCards");
 
