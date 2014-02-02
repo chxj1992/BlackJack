@@ -73,7 +73,8 @@ public class IndexController {
         Map routine = pokerService.checkRoutine("player", session);
         ImmutableMap data = ImmutableMap.of(
                 "dealer", ImmutableMap.of("cards", dealerCards),
-                "player", ImmutableMap.of("cards", playerCards, "routine", routine)) ;
+                "player", ImmutableMap.of("cards", playerCards,
+                "routine", routine)) ;
 
         return AjaxReturn.success(data);
     }
@@ -185,6 +186,7 @@ public class IndexController {
         List<Poker> dealerCards = (List<Poker>)session.getAttribute("dealerCards");
         Map win = pokerService.judgeWin(session);
         Map data = ImmutableMap.of("name", win.get("name"), "money", win.get("money"), "dealer", dealerCards );
+        session.setAttribute("balance", win.get("money"));
         pokerService.clearAll(session);
 
         return AjaxReturn.success(data);
@@ -196,7 +198,7 @@ public class IndexController {
      * 先收
      ***********************************************/
 
-    @RequestMapping(value="/five", method = RequestMethod.POST)
+    @RequestMapping(value="/fiveCard", method = RequestMethod.POST)
     @ResponseBody
     public Map fiveCard(@RequestParam("role") String role, HttpSession session) {
 
@@ -217,7 +219,7 @@ public class IndexController {
 
     @RequestMapping(value="/special", method = RequestMethod.POST)
     @ResponseBody
-    public Map special(@RequestParam("role") String role, HttpSession session) {
+    public Map specialWin(@RequestParam("role") String role, HttpSession session) {
 
         return AjaxReturn.fail();
     }

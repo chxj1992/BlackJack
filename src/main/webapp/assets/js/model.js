@@ -10,6 +10,7 @@ define(['jquery','backbone'],function(){
 
         hit : function() {
             $("#player-status-tag").text("Hitting...");
+            $(".special").hide();
             var model = this;
             $.ajax({
                 url : "/hit",
@@ -25,22 +26,6 @@ define(['jquery','backbone'],function(){
                         $("#alert-timeout").fadeIn();
                         return;
                     }
-                    var localPlayer = JSON.parse(localStorage.getItem("player"));
-                    localPlayer.cards[Object.keys(localPlayer.cards).length] = data.data.poker;
-                    localPlayer.routine = data.data.routine;
-                    var poker = data.data.poker;
-                    model.set({'pokerId': poker.pokerId,
-                        'value' : poker.value,
-                        'fileName' : poker.fileName,
-                        'role' : 'player'});
-                    localStorage.setItem("player", JSON.stringify(localPlayer));
-                    $("#total-score").text(model.getScore("player"));
-                    var routine = data.data.routine;
-                    if( routine.name != "Normal" ) {
-                        $("#player-card-tag").text(routine.name);
-                        $("#routine").text(routine.name);
-                        $("#routine").show();
-                    }
 
                     if ( data.status == 0 && data.data.info == "Bust" ) {
                         $("#player-status-tag").text("Bust");
@@ -48,8 +33,45 @@ define(['jquery','backbone'],function(){
                         $(".bet-lose").text(localStorage.getItem("bet"));
                         $("#alert-bust").fadeIn();
                     }
+
+                    model.updatePlayerCard(model, data.data);
+                    model.checkRoutine(model, data.data);
                 }
             });
+
+        },
+
+        updatePlayerCard : function(model, data) {
+            var localPlayer = JSON.parse(localStorage.getItem("player"));
+            localPlayer.cards[Object.keys(localPlayer.cards).length] = data.poker;
+            localPlayer.routine = data.routine;
+            var poker = data.poker;
+            model.set({'pokerId': poker.pokerId,
+                'value' : poker.value,
+                'fileName' : poker.fileName,
+                'role' : 'player'});
+            localStorage.setItem("player", JSON.stringify(localPlayer));
+            $("#total-score").text(model.getScore("player"));
+            var routine =data.routine;
+            if( routine.name != "Normal" ) {
+                $("#player-card-tag").text(routine.name);
+                $("#routine").text(routine.name);
+                $("#routine").show();
+            }
+        },
+
+        checkRoutine : function(model, data) {
+            if(data.routine.name == "Black Jack") {
+                $("#black-jack").show();
+            }
+
+            if(data.routine.name == "Five Card") {
+                model.fiveCard();
+            }
+
+            if(data.routine.name == "Special Win") {
+                model.specialWin();
+            }
 
         },
 
@@ -65,6 +87,21 @@ define(['jquery','backbone'],function(){
                     setTimeout(function(){
                         model.dealerHit();
                     }, 1000);
+                }
+            });
+
+        },
+
+        doubleCard : function() {
+            localStorage.setItem("bet", parseInt(localStorage.getItem("bet"))*2 );
+            var model = this;
+            $.ajax({
+                url : "/double",
+                type : "POST",
+                dataType : 'Json',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                success : function(){
+
                 }
             });
 
@@ -88,8 +125,9 @@ define(['jquery','backbone'],function(){
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 success : function(data){
                     if ( data.status == 0 )  {
-                        localStorage.removeItem('userInfo');
-                        window.location.reload();
+                        $("#mask").show();
+                        $("#alert-timeout").fadeIn();
+                        return;
                     }
                     var localPlayer = JSON.parse(localStorage.getItem("player"));
                     var player = data.data.player.cards;
@@ -212,23 +250,68 @@ define(['jquery','backbone'],function(){
                         $("#win-info>strong").text(data.data.name);
                         $("#win-info").show();
                     }
+
                     var money = parseInt(data.data.money);
+                    var balance = parseInt(localStorage.getItem("balance"));
                     var bet = parseInt(localStorage.getItem("bet"));
                     $("#mask").show();
-                    if(money > bet) {
-                        $(".bet-win").text(money-bet);
-                        localStorage.setItem("balance",parseInt(localStorage.getItem("balance"))+money);
+                    if( money > (balance+bet) ) {
+                        $(".bet-win").text(money-balance-bet);
+                        localStorage.setItem("balance", money);
                         $("#alert-win").fadeIn();
-                    } else if (money < bet) {
-                        $(".bet-lose").text(bet-money);
-                        localStorage.setItem("balance",parseInt(localStorage.getItem("balance"))+money);
+                    } else if ( money < (balance+bet) ) {
+                        $(".bet-lose").text(balance+bet-money);
+                        localStorage.setItem("balance", money);
                         $("#alert-lose").fadeIn();
                     } else {
-                       localStorage.setItem("balance",parseInt(localStorage.getItem("balance"))+money);
                        $("#alert-draw").fadeIn();
                     }
+                    localStorage.setItem("balance", money);
+                    $("#balance-show").text(money);
+                }
+            });
+        },
 
-                    $("#balance-show").text(localStorage.getItem('balance'));
+        blackJack : function(role) {
+             $.ajax({
+                url : "/blackJack",
+                type : "POST",
+                dataType : 'Json',
+                headers : {'Content-Type': 'application/x-www-form-urlencoded'},
+                data : {
+                    'role' : role
+                },
+                success : function(data){
+                }
+             });
+
+        },
+
+        fiveCard : function(role) {
+             $.ajax({
+                url : "/fiveCard",
+                type : "POST",
+                dataType : 'Json',
+                headers : {'Content-Type': 'application/x-www-form-urlencoded'},
+                data : {
+                    'role' : role
+                },
+                success : function(data){
+                }
+             });
+
+        },
+
+        specialWin : function(role) {
+            $.ajax({
+                url : "/special",
+                type : "POST",
+                dataType : 'Json',
+                headers : {'Content-Type': 'application/x-www-form-urlencoded'},
+                data : {
+                    'role' : role
+                },
+                success : function(data){
                 }
             });
         }

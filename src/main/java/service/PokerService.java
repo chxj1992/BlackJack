@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import dao.PokerDao;
 import model.Poker;
 import org.springframework.beans.factory.annotation.Autowired;
+import sun.print.resources.serviceui_es;
 import utils.Pokers;
 
 import javax.servlet.http.HttpSession;
@@ -33,6 +34,7 @@ public class PokerService {
     public Map judgeWin(HttpSession session) {
 
         Integer bet = (Integer) session.getAttribute("bet");
+        Integer balance = (Integer) session.getAttribute("balance");
 
         List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
         List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
@@ -47,19 +49,22 @@ public class PokerService {
         }
 
         if( isBlackJack("player", session) && !isBlackJack("dealer", session) ) {
-            return ImmutableMap.of("name", "Black Jack", "money", (int)((BLACK_JACK_RATE+1)*bet) );
+            return ImmutableMap.of("name", "Black Jack", "money", (int)(balance + (BLACK_JACK_RATE+1)*bet) );
         } else if( isBlackJack("dealer", session) && !isBlackJack("player", session) ) {
-            return ImmutableMap.of("name", "Black Jack", "money", -(int)((BLACK_JACK_RATE-1)*bet) );
+            return ImmutableMap.of("name", "Black Jack", "money", (int)(balance - (BLACK_JACK_RATE-1)*bet) );
         }
 
+        if( dealerCards.size()>=5 && dealerScore<=21 )
+            return ImmutableMap.of("name", "Five Card", "money", -(int)(balance - (FIVE_CARD_RATE-1)*bet) );
+
         if ( dealerScore > 21 )
-            return ImmutableMap.of("name", "Normal", "money", (int)((NORMAL_RATE+1)*bet) );
+            return ImmutableMap.of("name", "Normal", "money", (int)(balance + (NORMAL_RATE+1)*bet) );
         else if ( playerScore > dealerScore )
-            return ImmutableMap.of("name", "Normal", "money", (int)((NORMAL_RATE+1)*bet) );
+            return ImmutableMap.of("name", "Normal", "money", (int)(balance + (NORMAL_RATE+1)*bet) );
         else if ( playerScore < dealerScore )
-            return ImmutableMap.of("name", "Normal", "money", -(int)((NORMAL_RATE-1)*bet) );
+            return ImmutableMap.of("name", "Normal", "money", (int)(balance - (NORMAL_RATE-1)*bet) );
         else
-            return ImmutableMap.of("name", "Draw", "money", bet);
+            return ImmutableMap.of("name", "Draw", "money", balance + bet );
 
     }
 
@@ -72,9 +77,10 @@ public class PokerService {
         else
             pokers = (List<Poker>) session.getAttribute("dealerCards");
 
-        Map routine = Maps.newHashMap();
-        routine.put("name", "Normal");
-        routine.put("rate", NORMAL_RATE);
+        Map newRoutine = Maps.newHashMap();
+        newRoutine.put("name", "Normal");
+        newRoutine.put("rate", NORMAL_RATE);
+        Map routine = session.getAttribute(role+"Routine") != null ? (Map)session.getAttribute(role+"Routine") : newRoutine;
         //特奖
         Integer sevenNum = 0;
         for( Poker poker : pokers ) {

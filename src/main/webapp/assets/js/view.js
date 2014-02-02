@@ -131,7 +131,11 @@ define(['model','jquery','backbone'],function(PokerModel){
         },
 
         double : function() {
-            this.toNonFirstRound();
+            $("#double").attr("disabled", "disabled");
+            this.model.doubleCard();
+            setTimeout(function(){
+                    this.toNonFirstRound();
+            }, 500);
         },
 
     /*********************************************
