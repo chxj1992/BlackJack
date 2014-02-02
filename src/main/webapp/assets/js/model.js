@@ -52,25 +52,17 @@ define(['jquery','backbone'],function(){
                 'role' : 'player'});
             localStorage.setItem("player", JSON.stringify(localPlayer));
             $("#total-score").text(model.getScore("player"));
-            var routine =data.routine;
-            if( routine.name != "Normal" ) {
-                $("#player-card-tag").text(routine.name);
-                $("#routine").text(routine.name);
-                $("#routine").show();
-            }
         },
 
         checkRoutine : function(model, data) {
-            if(data.routine.name == "Black Jack") {
-                $("#black-jack").show();
+            var routine = data.routine;
+            if( routine.name != "Normal" ) {
+                $("#player-card-tag").text(routine.name);
             }
-
-            if(data.routine.name == "Five Card") {
-                model.fiveCard();
-            }
-
-            if(data.routine.name == "Special Win") {
-                model.specialWin();
+            if(routine.name == "Black Jack") {
+                $("#routine").text(routine.name);
+                $("#routine").val("blackJack");
+                $("#routine").show();
             }
 
         },
@@ -101,7 +93,10 @@ define(['jquery','backbone'],function(){
                 dataType : 'Json',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 success : function(){
-
+                    model.hit();
+                    setTimeout(function(){
+                        model.stand();
+                    }, 1000);
                 }
             });
 
@@ -138,14 +133,12 @@ define(['jquery','backbone'],function(){
                             'fileName' : player[i].fileName,
                             'role' : 'player'});
                     }
+                    var routine = data.data.player.routine;
+                    localPlayer.routine = routine;
                     localStorage.setItem("player", JSON.stringify(localPlayer));
                     $("#total-score").text(model.getScore("player"));
-                    var routine = data.data.player.routine;
-                    if( routine.name != "Normal" ) {
+                    if( routine.name != "Normal" )
                         $("#player-card-tag").text(routine.name);
-                        $("#routine").text(routine.name);
-                        $("#routine").show();
-                    }
 
                     var localDealer = JSON.parse(localStorage.getItem("dealer"));
                     var dealer = data.data.dealer.cards;
@@ -156,6 +149,7 @@ define(['jquery','backbone'],function(){
                             'fileName' : dealer[i].fileName,
                             'role' : 'dealer'});
                     }
+                    model.checkRoutine(model, data.data.player);
                     localStorage.setItem("dealer", JSON.stringify(localDealer));
                 }
             });
@@ -246,74 +240,49 @@ define(['jquery','backbone'],function(){
                     }
                     localStorage.setItem("dealer", JSON.stringify(localDealer));
 
-                    if(data.data.name != "Normal"){
-                        $("#win-info>strong").text(data.data.name);
-                        $("#win-info").show();
-                    }
-
-                    var money = parseInt(data.data.money);
-                    var balance = parseInt(localStorage.getItem("balance"));
-                    var bet = parseInt(localStorage.getItem("bet"));
-                    $("#mask").show();
-                    if( money > (balance+bet) ) {
-                        $(".bet-win").text(money-balance-bet);
-                        localStorage.setItem("balance", money);
-                        $("#alert-win").fadeIn();
-                    } else if ( money < (balance+bet) ) {
-                        $(".bet-lose").text(balance+bet-money);
-                        localStorage.setItem("balance", money);
-                        $("#alert-lose").fadeIn();
-                    } else {
-                       $("#alert-draw").fadeIn();
-                    }
-                    localStorage.setItem("balance", money);
-                    $("#balance-show").text(money);
+                    model.alertJudge(data.data);
                 }
             });
         },
 
-        blackJack : function(role) {
+        alertJudge : function (data) {
+            if(data.name != "Normal"){
+                $("#win-info>strong").text(data.name);
+                $("#win-info").show();
+            }
+            var money = parseInt(data.money);
+            var balance = parseInt(localStorage.getItem("balance"));
+            var bet = parseInt(localStorage.getItem("bet"));
+            $("#mask").show();
+            if( money > (balance+bet) ) {
+                $(".bet-win").text(money-balance-bet);
+                localStorage.setItem("balance", money);
+                $("#alert-win").fadeIn();
+            } else if ( money < (balance+bet) ) {
+                $(".bet-lose").text(balance+bet-money);
+                localStorage.setItem("balance", money);
+                $("#alert-lose").fadeIn();
+            } else {
+               $("#alert-draw").fadeIn();
+            }
+            localStorage.setItem("balance", money);
+            $("#balance-show").text(money);
+        },
+
+        blackJack : function() {
+            var model = this;
              $.ajax({
                 url : "/blackJack",
                 type : "POST",
                 dataType : 'Json',
                 headers : {'Content-Type': 'application/x-www-form-urlencoded'},
                 data : {
-                    'role' : role
+                    'role' : "player"
                 },
                 success : function(data){
+                    model.alertJudge(data.data);
                 }
              });
-
-        },
-
-        fiveCard : function(role) {
-             $.ajax({
-                url : "/fiveCard",
-                type : "POST",
-                dataType : 'Json',
-                headers : {'Content-Type': 'application/x-www-form-urlencoded'},
-                data : {
-                    'role' : role
-                },
-                success : function(data){
-                }
-             });
-
-        },
-
-        specialWin : function(role) {
-            $.ajax({
-                url : "/special",
-                type : "POST",
-                dataType : 'Json',
-                headers : {'Content-Type': 'application/x-www-form-urlencoded'},
-                data : {
-                    'role' : role
-                },
-                success : function(data){
-                }
-            });
         }
 
 

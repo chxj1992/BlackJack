@@ -58,7 +58,8 @@ define(['model','jquery','backbone'],function(PokerModel){
             'click #double' : 'double',
             'click #hit' : 'hit',
             'click .bet' : 'setBet',
-            'click .retry-btn' : 'retry'
+            'click .retry-btn' : 'retry',
+            'click #routine' : $("#routine").val()
         },
 
         initialize : function() {
@@ -132,10 +133,15 @@ define(['model','jquery','backbone'],function(PokerModel){
 
         double : function() {
             $("#double").attr("disabled", "disabled");
-            this.model.doubleCard();
             setTimeout(function(){
                     this.toNonFirstRound();
             }, 500);
+            this.model.doubleCard();
+        },
+
+        blackJack : function() {
+            $("#black-jack").attr("disabled", "disabled");
+            this.model.blackJack();
         },
 
     /*********************************************

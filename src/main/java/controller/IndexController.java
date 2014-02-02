@@ -141,7 +141,6 @@ public class IndexController {
         if( playerCards.size() > 2 )
             return AjaxReturn.fail();
 
-        session.setAttribute("status","double");
         Integer bet = (Integer) session.getAttribute("bet");
         Integer balance = (Integer) session.getAttribute("balance");
         session.setAttribute("balance", balance-bet);
@@ -195,33 +194,20 @@ public class IndexController {
 
 
     /*************************************************
-     * 先收
+     * 黑杰克先收
      ***********************************************/
-
-    @RequestMapping(value="/fiveCard", method = RequestMethod.POST)
-    @ResponseBody
-    public Map fiveCard(@RequestParam("role") String role, HttpSession session) {
-
-        List<Poker> pokers = (List<Poker>)session.getAttribute("playerCards");
-        if ( pokers.size() == 5 )
-            return AjaxReturn.success();
-
-        return AjaxReturn.fail();
-    }
-
     @RequestMapping(value="/blackJack", method = RequestMethod.POST)
     @ResponseBody
-    public Map blackJack(@RequestParam("role") String role, HttpSession session) {
+    public Map blackJack(HttpSession session) {
 
-        return AjaxReturn.fail();
-    }
+        Map playerRoutine = (Map)session.getAttribute("playerRoutine");
+        if( !playerRoutine.get("name").equals("Black Jack") )
+            return AjaxReturn.fail();
 
-
-    @RequestMapping(value="/special", method = RequestMethod.POST)
-    @ResponseBody
-    public Map specialWin(@RequestParam("role") String role, HttpSession session) {
-
-        return AjaxReturn.fail();
+        Integer bet = (Integer) session.getAttribute("bet");
+        Integer balance = (Integer) session.getAttribute("balance");
+        Map data = ImmutableMap.of("name", "Black Jack", "money", (int)(balance+(1+1.5)*bet) );
+        return AjaxReturn.success(data);
     }
 
 

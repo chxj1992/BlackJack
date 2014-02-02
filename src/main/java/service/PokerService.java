@@ -6,10 +6,10 @@ import com.google.common.collect.Maps;
 import dao.PokerDao;
 import model.Poker;
 import org.springframework.beans.factory.annotation.Autowired;
-import sun.print.resources.serviceui_es;
 import utils.Pokers;
 
 import javax.servlet.http.HttpSession;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -36,9 +36,28 @@ public class PokerService {
         Integer bet = (Integer) session.getAttribute("bet");
         Integer balance = (Integer) session.getAttribute("balance");
 
-        List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
-        List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
+        Map dealerRoutine = (Map) session.getAttribute("dealerRoutine");
+        Map playerRoutine = (Map) session.getAttribute("playerRoutine");
 
+        // 例牌胜出
+        if( dealerRoutine.get("name") != "Normal" && playerRoutine.get("name") == "Normal" ) {
+            return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance - (Double.parseDouble((String)dealerRoutine.get("rate"))-1)*bet) );
+        } else if( dealerRoutine.get("name") == "Normal" && playerRoutine.get("name") != "Normal" ) {
+            return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance + (Double.parseDouble((String)playerRoutine.get("rate"))+1)*bet) );
+        } else if( dealerRoutine.get("name") != "Normal" && playerRoutine.get("name") != "Normal") {
+            Double playerRate = Double.parseDouble((String)playerRoutine.get("rate"));
+            Double dealerRate = Double.parseDouble((String)dealerRoutine.get("rate"));
+            if( playerRate - dealerRate > 0 ) {
+                return ImmutableMap.of("name", playerRoutine.get("name"), "money", (int)(balance + (playerRate-dealerRate+1)*bet) );
+            } else if( playerRate - dealerRate < 0 ){
+                return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance - (dealerRate-playerRate-1)*bet) );
+            } else {
+                return ImmutableMap.of("name", "Draw", "money", balance + bet );
+            }
+        }
+
+        List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
+        List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
         Integer playerScore = 0;
         for ( Poker poker : playerCards ){
             playerScore += poker.getValue();
@@ -48,15 +67,6 @@ public class PokerService {
             dealerScore += poker.getValue();
         }
 
-        if( isBlackJack("player", session) && !isBlackJack("dealer", session) ) {
-            return ImmutableMap.of("name", "Black Jack", "money", (int)(balance + (BLACK_JACK_RATE+1)*bet) );
-        } else if( isBlackJack("dealer", session) && !isBlackJack("player", session) ) {
-            return ImmutableMap.of("name", "Black Jack", "money", (int)(balance - (BLACK_JACK_RATE-1)*bet) );
-        }
-
-        if( dealerCards.size()>=5 && dealerScore<=21 )
-            return ImmutableMap.of("name", "Five Card", "money", -(int)(balance - (FIVE_CARD_RATE-1)*bet) );
-
         if ( dealerScore > 21 )
             return ImmutableMap.of("name", "Normal", "money", (int)(balance + (NORMAL_RATE+1)*bet) );
         else if ( playerScore > dealerScore )
@@ -65,11 +75,10 @@ public class PokerService {
             return ImmutableMap.of("name", "Normal", "money", (int)(balance - (NORMAL_RATE-1)*bet) );
         else
             return ImmutableMap.of("name", "Draw", "money", balance + bet );
-
     }
 
 
-    public Map checkRoutine(String role, HttpSession session) {
+    public Map<String, Serializable> checkRoutine(String role, HttpSession session) {
 
         List<Poker> pokers;
         if ( role.equals("player") )
@@ -77,10 +86,16 @@ public class PokerService {
         else
             pokers = (List<Poker>) session.getAttribute("dealerCards");
 
-        Map newRoutine = Maps.newHashMap();
+        Map<String, Serializable> newRoutine = Maps.newHashMap();
         newRoutine.put("name", "Normal");
         newRoutine.put("rate", NORMAL_RATE);
-        Map routine = session.getAttribute(role+"Routine") != null ? (Map)session.getAttribute(role+"Routine") : newRoutine;
+        Map<String, Serializable> routine = session.getAttribute(role+"Routine") != null ? (Map<String,Serializable>)session.getAttribute(role+"Routine") : newRoutine;
+
+        //五龙
+        if ( pokers.size() >= 5 ) {
+            routine.put("name", "Five Card");
+            routine.put("rate", FIVE_CARD_RATE);
+        }
         //特奖
         Integer sevenNum = 0;
         for( Poker poker : pokers ) {
@@ -95,11 +110,6 @@ public class PokerService {
         if ( isBlackJack(role, session) ) {
             routine.put("name", "Black Jack");
             routine.put("rate", BLACK_JACK_RATE);
-        }
-        //五龙
-        if ( pokers.size() >= 5 ) {
-            routine.put("name", "Five Card");
-            routine.put("rate", FIVE_CARD_RATE);
         }
 
         session.setAttribute(role+"Routine", routine);
