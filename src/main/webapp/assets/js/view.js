@@ -109,10 +109,10 @@ define(['model','jquery','backbone'],function(PokerModel){
         },
 
         advisor : function(){
-            $("#advisor").popover('show');
+            this.model.advisor();
             setTimeout(function(){
                 $("#advisor").popover('hide');
-            },3000);
+            },2000);
         },
 
         surrender : function(){
@@ -149,6 +149,7 @@ define(['model','jquery','backbone'],function(PokerModel){
      * Private Functions
      *********************************************/
         toBeforeStart : function(){
+            localStorage.setItem("status", "before");
             $("#board-playing > button").removeAttr("disabled");
             $("#open-cards").removeAttr("disabled");
             $(".tag").text("");
@@ -156,7 +157,7 @@ define(['model','jquery','backbone'],function(PokerModel){
             $("#mask").hide();
             $("#player-card").html('');
             $("#dealer-card").html('');
-            $("#total-score").text(0);
+            $("#player-total-score").text(0);
             $("#board-playing > button").hide();
             $("#board-before-start").show();
         },

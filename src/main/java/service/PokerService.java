@@ -19,6 +19,8 @@ import java.util.Map;
  */
 public class PokerService {
 
+    private static final int DECK_NUM = 6 ;
+
     private static final double NORMAL_RATE = 1.0 ;
     private static final double BLACK_JACK_RATE = 2.0 ;
     private static final double FIVE_CARD_RATE = 2.0 ;
@@ -36,25 +38,10 @@ public class PokerService {
         Integer bet = (Integer) session.getAttribute("bet");
         Integer balance = (Integer) session.getAttribute("balance");
 
-        Map dealerRoutine = (Map) session.getAttribute("dealerRoutine");
-        Map playerRoutine = (Map) session.getAttribute("playerRoutine");
-
         // 例牌胜出
-        if( dealerRoutine.get("name") != "Normal" && playerRoutine.get("name") == "Normal" ) {
-            return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance - ( (Double)dealerRoutine.get("rate")-1)*bet) );
-        } else if( dealerRoutine.get("name") == "Normal" && playerRoutine.get("name") != "Normal" ) {
-            return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance + ( (Double)playerRoutine.get("rate")+1)*bet) );
-        } else if( dealerRoutine.get("name") != "Normal" && playerRoutine.get("name") != "Normal") {
-            Double playerRate = (Double)playerRoutine.get("rate");
-            Double dealerRate = (Double)dealerRoutine.get("rate");
-            if( playerRate - dealerRate > 0 ) {
-                return ImmutableMap.of("name", playerRoutine.get("name"), "money", (int)(balance + (playerRate-dealerRate+1)*bet) );
-            } else if( playerRate - dealerRate < 0 ){
-                return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance - (dealerRate-playerRate-1)*bet) );
-            } else {
-                return ImmutableMap.of("name", "Draw", "money", balance + bet );
-            }
-        }
+        Map routine = routineWin(balance, bet, session);
+        if(routine != null)
+            return routine;
 
         List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
         List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
@@ -89,7 +76,7 @@ public class PokerService {
         Map routine = (Map)session.getAttribute(role+"Routine");
 
         //五龙
-        if ( pokers.size() >= 5 ) {
+        if ( pokers.size() >= 5 && totalScore(role, session) <= 21) {
             routine.put("name", "Five Card");
             routine.put("rate", FIVE_CARD_RATE);
         }
@@ -114,109 +101,24 @@ public class PokerService {
     }
 
 
-    /**
-     * 重新洗牌
-     * @param session
-     */
-    public void shuffleCards(HttpSession session) {
-        List<Poker> cards = pokerDao.getPokers(Pokers.init());
+    public void beforeOpenCard(Integer balance, Integer bet, HttpSession session) {
 
-        session.setAttribute("undealCards", cards);
-        session.setAttribute("dealerCards", Lists.newArrayList());
-        session.setAttribute("playerCards", Lists.newArrayList());
-        session.setAttribute("usedCards", Lists.newArrayList());
-    }
-
-
-    /**
-     * 初始化开牌session
-     * @param session
-     */
-    public void initCards(HttpSession session) {
-
-        Map newRoutine = ImmutableMap.of("name", "Normal", "rate", NORMAL_RATE);
-        session.setAttribute("playerRoutine", Maps.newHashMap(newRoutine));
-        session.setAttribute("dealerRoutine", Maps.newHashMap(newRoutine));
-
+        session.setAttribute("bet", bet);
+        session.setAttribute("balance", balance - bet);
+        session.setAttribute("status", "playing");
         List<Poker> undealCards = (List<Poker>) session.getAttribute("undealCards");
+        List<Poker> usedCards = (List<Poker>) session.getAttribute("usedCards");
+        String level = session.getAttribute("level") == null ? "beginner" : session.getAttribute("level").toString();
 
-        List<Poker> dealerCards = Lists.newArrayList();
-        dealerCards.add(undealCards.get(0));
-        dealerCards.add(undealCards.get(1));
-
-        List<Poker> playerCards = Lists.newArrayList();
-        playerCards.add(undealCards.get(2));
-        playerCards.add(undealCards.get(3));
-
-        List<Poker> usedCards = Lists.newArrayList();
-        for ( int i=0; i<4; i++ )
-            usedCards.add(undealCards.get(i));
-
-        for ( int i=0; i<4; i++ )
-            undealCards.remove(0);
-
-        session.setAttribute("dealerCards", dealerCards);
-        session.setAttribute("playerCards", playerCards);
-        session.setAttribute("usedCards", usedCards);
-
-    }
-
-
-    /**
-     * 获取当前总分,如果爆牌则尝试转换A
-     * @param role
-     * @param session
-     * @return
-     */
-    public Integer totalScore(String role, HttpSession session) {
-
-        List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
-        List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
-
-        List<Poker> pokers;
-        if ( role.equals("player") )
-            pokers = playerCards;
-        else
-            pokers = dealerCards;
-
-        Integer total = 0;
-        Integer aNum = 0;
-        for ( Poker poker : pokers ) {
-            if ( poker.getValue().equals(11) )
-                aNum++;
-            total += poker.getValue();
+        if ( level.equals("expert") ) {
+            shuffleCards(session);
+        } else if ( undealCards == null || (usedCards.size()/undealCards.size()) >= 3 ) {
+            // 剩余牌量不足1/4时洗牌
+            shuffleCards(session);
         }
 
-        // 爆牌但是有A时，将A算小
-        while (aNum>0 && total>21 ) {
-            total -= aNum * 10;
-            aNum--;
-            convertACard(role,session);
-        }
+        initCards(session);
 
-        return total;
-
-    }
-
-    /**
-     * 转换A
-     * @param role
-     * @param session
-     */
-    public void convertACard(String role, HttpSession session){
-
-        List<Poker> pokers;
-        if (role.equals("player"))
-            pokers = (List<Poker>) session.getAttribute("playerCards");
-        else
-            pokers = (List<Poker>) session.getAttribute("dealerCards");
-
-        for ( Poker poker : pokers ) {
-            if( poker.getValue().equals(11) ) {
-                poker.setValue(1);
-                break;
-            }
-        }
     }
 
     /**
@@ -263,6 +165,144 @@ public class PokerService {
             return true;
 
         return false;
+    }
+
+
+    /**
+     * 获取当前总分,如果爆牌则尝试转换A
+     * @param role
+     * @param session
+     * @return
+     */
+    public Integer totalScore(String role, HttpSession session) {
+
+        List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
+        List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
+
+        List<Poker> pokers;
+        if ( role.equals("player") )
+            pokers = playerCards;
+        else
+            pokers = dealerCards;
+
+        Integer total = 0;
+        Integer aNum = 0;
+        for ( Poker poker : pokers ) {
+            if ( poker.getValue().equals(11) )
+                aNum++;
+            total += poker.getValue();
+        }
+
+        // 爆牌但是有A时，将A算小
+        while (aNum>0 && total>21 ) {
+            total -= aNum * 10;
+            aNum--;
+            convertACard(role,session);
+        }
+
+        return total;
+    }
+
+
+
+    /**
+     * 如果有例牌则直接比较例牌
+     * @param balance
+     * @param bet
+     * @param session
+     * @return
+     */
+    private Map routineWin(Integer balance, Integer bet, HttpSession session) {
+
+        Map dealerRoutine = (Map) session.getAttribute("dealerRoutine");
+        Map playerRoutine = (Map) session.getAttribute("playerRoutine");
+
+        if( dealerRoutine.get("name") != "Normal" && playerRoutine.get("name") == "Normal" ) {
+            return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance - ( (Double)dealerRoutine.get("rate")-1)*bet) );
+        } else if( dealerRoutine.get("name") == "Normal" && playerRoutine.get("name") != "Normal" ) {
+            return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance + ( (Double)playerRoutine.get("rate")+1)*bet) );
+        } else if( dealerRoutine.get("name") != "Normal" && playerRoutine.get("name") != "Normal") {
+            Double playerRate = (Double)playerRoutine.get("rate");
+            Double dealerRate = (Double)dealerRoutine.get("rate");
+            if( playerRate - dealerRate > 0 ) {
+                return ImmutableMap.of("name", playerRoutine.get("name"), "money", (int)(balance + (playerRate-dealerRate+1)*bet) );
+            } else if( playerRate - dealerRate < 0 ){
+                return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance - (dealerRate-playerRate-1)*bet) );
+            } else {
+                return ImmutableMap.of("name", "Draw", "money", balance + bet );
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * 重新洗牌
+     * @param session
+     */
+    private void shuffleCards(HttpSession session) {
+        List<Poker> cards = pokerDao.getPokers(Pokers.init(DECK_NUM));
+
+        session.setAttribute("undealCards", cards);
+        session.setAttribute("dealerCards", Lists.newArrayList());
+        session.setAttribute("playerCards", Lists.newArrayList());
+        session.setAttribute("usedCards", Lists.newArrayList());
+    }
+
+
+    /**
+     * 初始化开牌session
+     * @param session
+     */
+    private void initCards(HttpSession session) {
+
+        Map newRoutine = ImmutableMap.of("name", "Normal", "rate", NORMAL_RATE);
+        session.setAttribute("playerRoutine", Maps.newHashMap(newRoutine));
+        session.setAttribute("dealerRoutine", Maps.newHashMap(newRoutine));
+
+        List<Poker> undealCards = (List<Poker>) session.getAttribute("undealCards");
+        List<Poker> usedCards = (List<Poker>) session.getAttribute("usedCards");
+
+        List<Poker> dealerCards = Lists.newArrayList();
+        dealerCards.add(undealCards.get(0));
+        dealerCards.add(undealCards.get(1));
+
+        List<Poker> playerCards = Lists.newArrayList();
+        playerCards.add(undealCards.get(2));
+        playerCards.add(undealCards.get(3));
+
+        for ( int i=0; i<4; i++ )
+            usedCards.add(undealCards.get(i));
+
+        for ( int i=0; i<4; i++ )
+            undealCards.remove(0);
+
+        session.setAttribute("dealerCards", dealerCards);
+        session.setAttribute("playerCards", playerCards);
+
+    }
+
+
+    /**
+     * 转换A
+     * @param role
+     * @param session
+     */
+    private void convertACard(String role, HttpSession session){
+
+        List<Poker> pokers;
+        if (role.equals("player"))
+            pokers = (List<Poker>) session.getAttribute("playerCards");
+        else
+            pokers = (List<Poker>) session.getAttribute("dealerCards");
+
+        for ( Poker poker : pokers ) {
+            if( poker.getValue().equals(11) ) {
+                poker.setValue(1);
+                break;
+            }
+        }
     }
 
 }

@@ -29,7 +29,7 @@
                     <span id="player-status-tag" class="tag label label-warning"></span>
                 </strong>
                 <strong class="col-md-offset-6">
-                    <small>Total: </small><span id="total-score">0</span>
+                    <small>Total: </small><span id="player-total-score">0</span>
                 </strong>
                 <div id="player-card" class="col-md-offset-1">
                 </div>
@@ -41,28 +41,28 @@
                 <div id="board-before-start">
                     <div id="stack-btn" class="btn-group col-md-2">
                         <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
-                            <span id="bet-btn-text"> 注金：$<span id="bet-value">10</span> </span>
+                            <span id="bet-btn-text"> Bet：$<span id="bet-value">10</span> </span>
                             <span class="caret"></span>
                         </button>
                         <ul id="bet-memu" class="dropdown-menu" role="menu" style="">
-                            <li class="col-md-offset-2 bet"> $<span>10</span> </li>
-                            <li class="col-md-offset-2 bet"> $<span>50</span> </li>
-                            <li class="col-md-offset-2 bet"> $<span>100</span> </li>
+                            <li class="col-md-offset-2 bet">Low: $<span>10</span> </li>
+                            <li class="col-md-offset-2 bet">Medium: $<span>50</span> </li>
+                            <li class="col-md-offset-2 bet">High: $<span>100</span> </li>
                         </ul>
                     </div>
                     <div class="pull-right">
-                        <button id="open-cards" class="btn btn-primary"> 开牌 </button>
+                        <button id="open-cards" class="btn btn-primary"> Open Card </button>
                     </div>
                 </div>
                 <br/>
                 <div id="board-playing">
-                    <button id="hit" class="btn btn-info non-first-round"> 要牌 </button>
-                    <button id="stand" class="btn btn-warning non-first-round"> 停牌 </button>
-                    <button id="double" class="btn btn-success first-round"> 双倍 </button>
-                    <button id="insurance" class="btn btn-primary special"> 保险 </button>
+                    <button id="hit" class="btn btn-info non-first-round"> Hit </button>
+                    <button id="stand" class="btn btn-warning non-first-round"> Stand </button>
+                    <button id="double" class="btn btn-success first-round"> Double </button>
+                    <button id="insurance" class="btn btn-primary special"> Insurance </button>
                     <button id="black-jack" class="btn btn-primary special"></button>
                     <button id="surrender" class="btn btn-danger pull-right first-round">
-                        投降
+                        Surrender
                         <span class="glyphicon glyphicon-flag"></span>
                     </button>
                 </div>
@@ -90,8 +90,8 @@
                 Need Help?
             </small></h3>
             <span id="advisor" class="label label-info" data-toggle="popover"
-                  data-placement="left" data-container="#advisor-tooltip"
-                  data-content="I advise you to 'Hit'" title="My Lord">
+                  data-placement="top" data-container="#advisor-tooltip"
+                  data-content="No suggestion, Sir" title="Dear Sir">
                 <small>
                     Advisor
                     <span class="glyphicon glyphicon-tag"></span>

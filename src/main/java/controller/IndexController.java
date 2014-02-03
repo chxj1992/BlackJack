@@ -53,18 +53,7 @@ public class IndexController {
         if( balance == null || balance < bet )
             return AjaxReturn.fail("balance not enough");
 
-        session.setAttribute("bet", bet);
-        session.setAttribute("balance", balance - bet);
-        session.setAttribute("status", "playing");
-        List<Poker> undealCards = (List<Poker>) session.getAttribute("undealCards");
-        String level = session.getAttribute("level") == null ? "beginner" : session.getAttribute("level").toString();
-
-        if ( level.equals("expert") ) {
-            pokerService.shuffleCards(session);
-        } else if ( undealCards == null || undealCards.size() < 10 ) {
-            pokerService.shuffleCards(session);
-        }
-        pokerService.initCards(session);
+        pokerService.beforeOpenCard(balance, bet, session);
 
         List<Poker> dealerCards = Lists.newArrayList((List < Poker >)session.getAttribute("dealerCards"));
         List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
@@ -130,7 +119,8 @@ public class IndexController {
     @ResponseBody
     public Map standCards(HttpSession session) {
         session.setAttribute("status","stand");
-        return AjaxReturn.success();
+        Map routine = (Map) session.getAttribute("dealerRoutine");
+        return AjaxReturn.success(ImmutableMap.of("routine", routine) );
     }
 
 

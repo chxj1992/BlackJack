@@ -8,8 +8,30 @@ define(['jquery','backbone'],function(){
             'fileName' : '0.jpg'
         },
 
+        advisor : function() {
+            var url;
+            if ( localStorage.getItem("status") == "before" )
+                url = "/advisor/bet";
+            else if( localStorage.getItem("status") == "play" )
+                url = "/advisor/action";
+            else
+                return;
+
+            $.ajax({
+                url : url,
+                type : "POST",
+                dataType : 'Json',
+                async : false,
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                success : function(data){
+                    $("#advisor").attr("data-content", data.data + ", Sir.");
+                    $("#advisor").popover('show');
+                }
+            });
+        },
+
         hit : function() {
-            localStorage.setItem("status", "hit");
+            localStorage.setItem("status", "play");
             $("#player-status-tag").text("Judging...");
             $("#player-status-tag").text("Hitting...");
             $(".special").hide();
@@ -54,7 +76,7 @@ define(['jquery','backbone'],function(){
                 'fileName' : poker.fileName,
                 'role' : 'player'});
             localStorage.setItem("player", JSON.stringify(localPlayer));
-            $("#total-score").text(model.getScore("player"));
+            $("#player-total-score").text(model.getScore("player"));
         },
 
         checkRoutine : function(model, data) {
@@ -79,9 +101,12 @@ define(['jquery','backbone'],function(){
                 type : "POST",
                 dataType : 'Json',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                success : function(){
+                success : function(data){
                     setTimeout(function(){
-                        model.dealerHit();
+                        if(data.data.routine.name != "Normal")
+                            model.judge();
+                        else
+                            model.dealerHit();
                     }, 1000);
                 }
             });
@@ -99,7 +124,6 @@ define(['jquery','backbone'],function(){
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 success : function(){
                     var res = model.hit();
-                    alert(res);
                     if ( res != "bust" )
                         model.stand();
                 }
@@ -108,7 +132,7 @@ define(['jquery','backbone'],function(){
         },
 
         openCards : function() {
-            localStorage.setItem("status", "open");
+            localStorage.setItem("status", "play");
             $("#player-status-tag").text("Open card");
             var model = this;
             localStorage.setItem('bet', $("#bet-value").text());
@@ -142,7 +166,7 @@ define(['jquery','backbone'],function(){
                     var routine = data.data.player.routine;
                     localPlayer.routine = routine;
                     localStorage.setItem("player", JSON.stringify(localPlayer));
-                    $("#total-score").text(model.getScore("player"));
+                    $("#player-total-score").text(model.getScore("player"));
                     if( routine.name != "Normal" )
                         $("#player-card-tag").text(routine.name);
 
@@ -249,6 +273,7 @@ define(['jquery','backbone'],function(){
         },
 
         alertJudge : function (data) {
+            $("#win-info").hide();
             if(data.name != "Normal"){
                 $("#win-info>strong").text(data.name);
                 $("#win-info").show();
