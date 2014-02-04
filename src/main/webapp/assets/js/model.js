@@ -144,6 +144,7 @@ define(['jquery','backbone'],function(){
                 url : "/openCards",
                 type : "POST",
                 dataType : 'Json',
+                async : false,
                 data : {
                     "bet" : parseInt(localStorage.getItem("bet"))
                 },
