@@ -59,7 +59,9 @@ define(['model','jquery','backbone'],function(PokerModel){
             'click #hit' : 'hit',
             'click .bet' : 'setBet',
             'click .retry-btn' : 'retry',
-            'click #black-jack' : 'blackJack'
+            'click #black-jack' : 'blackJack',
+            'click #insurance' : 'insurance',
+            'click .close-alert' : 'closeAlert'
         },
 
         initialize : function() {
@@ -116,9 +118,8 @@ define(['model','jquery','backbone'],function(PokerModel){
         },
 
         surrender : function(){
-            $("#mask").show();
-            $(".bet-lose").text(localStorage.getItem("bet"));
-            $("#alert-surrender").fadeIn();
+            $("#surrender").attr("disabled", "disabled");
+            this.model.surrender();
         },
 
         stand : function(){
@@ -143,6 +144,16 @@ define(['model','jquery','backbone'],function(PokerModel){
         blackJack : function() {
             $("#black-jack").attr("disabled", "disabled");
             this.model.blackJack();
+        },
+
+        insurance: function() {
+            $("#insurance").attr("disabled", "disabled");
+            this.model.insurance();
+        },
+
+        closeAlert : function() {
+            $(".alert").fadeOut();
+            $("#mask").hide();
         },
 
     /*********************************************

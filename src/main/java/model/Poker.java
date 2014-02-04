@@ -14,6 +14,11 @@ public class Poker {
     private String fileName;
 
 
+
+    public Poker(Integer value) {
+        this.value = value;
+    }
+
     public Poker(Integer pokerId, Integer value, String fileName) {
         this.pokerId = pokerId;
         this.value = value;

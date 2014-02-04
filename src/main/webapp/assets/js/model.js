@@ -181,6 +181,10 @@ define(['jquery','backbone'],function(){
                     }
                     model.checkRoutine(model, data.data.player);
                     localStorage.setItem("dealer", JSON.stringify(localDealer));
+                    if( dealer[1].value == 11 ) {
+                        $("#surrender").hide();
+                        $("#insurance").show();
+                    }
                 }
             });
         },
@@ -311,7 +315,52 @@ define(['jquery','backbone'],function(){
                     model.alertJudge(data.data);
                 }
              });
+        },
+
+        surrender: function() {
+             $.ajax({
+                url : "/surrender",
+                type : "POST",
+                dataType : 'Json',
+                headers : {'Content-Type': 'application/x-www-form-urlencoded'},
+                success : function(data){
+                    if(data.status == 1){
+                        $("#balance-show").text(data.data);
+                        $("#mask").show();
+                        var balance = parseInt(localStorage.getItem("balance"));
+                        var bet = parseInt(localStorage.getItem("bet"));
+                        $(".bet-lose").text(balance+bet-data.data);
+                        $("#alert-surrender").fadeIn();
+                        localStorage.setItem("balance", data.data);
+                    }
+                }
+             });
+        },
+
+
+        insurance: function() {
+             $.ajax({
+                url : "/insurance",
+                type : "POST",
+                dataType : 'Json',
+                headers : {'Content-Type': 'application/x-www-form-urlencoded'},
+                success : function(data){
+                    if(data.status == 1){
+                        $("#balance-show").text(data.data);
+                        $("#mask").show();
+                        if( data.data > parseInt(localStorage.getItem("balance")) ) {
+                            $(".insurance-money").text(data.data-localStorage.getItem("balance"));
+                            $("#alert-insurance-win").fadeIn();
+                        } else {
+                            $(".insurance-money").text(localStorage.getItem("balance")-data.data);
+                            $("#alert-insurance-lose").fadeIn();
+                        }
+                        localStorage.setItem("balance", data.data);
+                    }
+                }
+             });
         }
+
 
 
     });

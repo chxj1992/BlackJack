@@ -19,6 +19,7 @@ import java.util.Map;
  */
 public class PokerService {
 
+    // 6副牌
     private static final int DECK_NUM = 6 ;
 
     private static final double NORMAL_RATE = 1.0 ;
@@ -26,8 +27,8 @@ public class PokerService {
     private static final double FIVE_CARD_RATE = 2.0 ;
     private static final double SPECIAL_RATE = 3.0 ;
     private static final double INSURANCE_WIN = 2.0;
-    private static final double INSURANCE_LOSE = -0.5;
-    private static final double SURRENDER_RATE = -0.5;
+    private static final double INSURANCE_LOSE = 0.5;
+    private static final double SURRENDER_RATE = 0.5;
 
 
     @Autowired
@@ -86,7 +87,7 @@ public class PokerService {
             if ( poker.getValue().equals(7) )
                 sevenNum ++;
         }
-        if ( sevenNum.equals(7) ) {
+        if ( sevenNum.equals(3) ) {
             routine.put("name", "Special Win");
             routine.put("rate", SPECIAL_RATE);
         }
@@ -118,8 +119,8 @@ public class PokerService {
         }
 
         initCards(session);
-
     }
+
 
     /**
      * 清牌
@@ -135,9 +136,11 @@ public class PokerService {
      * @param session
      * @return
      */
-    public int surrender(HttpSession session) {
+    public Integer surrender(HttpSession session) {
         Integer bet = (Integer) session.getAttribute("bet");
-        return (int)(SURRENDER_RATE * bet);
+        Integer balance = (Integer) session.getAttribute("balance");
+        session.setAttribute("balance", (int)(balance+bet-SURRENDER_RATE*bet) );
+        return (Integer) session.getAttribute("balance");
     }
 
     /**
@@ -145,13 +148,17 @@ public class PokerService {
      * @param session
      * @return
      */
-    public int insurance(HttpSession session) {
+    public Integer insurance(HttpSession session) {
         Integer bet = (Integer) session.getAttribute("bet");
+        Integer balance = (Integer) session.getAttribute("balance");
         List<Poker> dealer = (List<Poker>) session.getAttribute("dealerCards");
-        if(dealer.get(0).getValue()+dealer.get(1).getValue() == 21)
-            return (int)(INSURANCE_WIN * bet);
-        else
-            return (int)(INSURANCE_LOSE * bet);
+        if(dealer.get(0).getValue()+dealer.get(1).getValue() == 21) {
+            session.setAttribute("balance", (int)(balance+INSURANCE_WIN*bet) );
+            return (Integer) session.getAttribute("balance");
+        } else {
+            session.setAttribute("balance", (int)(balance-INSURANCE_LOSE*bet) );
+            return (Integer) session.getAttribute("balance");
+        }
     }
 
     public Boolean isBlackJack(String role, HttpSession session) {
@@ -220,7 +227,7 @@ public class PokerService {
         if( dealerRoutine.get("name") != "Normal" && playerRoutine.get("name") == "Normal" ) {
             return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance - ( (Double)dealerRoutine.get("rate")-1)*bet) );
         } else if( dealerRoutine.get("name") == "Normal" && playerRoutine.get("name") != "Normal" ) {
-            return ImmutableMap.of("name", dealerRoutine.get("name"), "money", (int)(balance + ( (Double)playerRoutine.get("rate")+1)*bet) );
+            return ImmutableMap.of("name", playerRoutine.get("name"), "money", (int)(balance + ( (Double)playerRoutine.get("rate")+1)*bet) );
         } else if( dealerRoutine.get("name") != "Normal" && playerRoutine.get("name") != "Normal") {
             Double playerRate = (Double)playerRoutine.get("rate");
             Double dealerRate = (Double)dealerRoutine.get("rate");

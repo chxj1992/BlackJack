@@ -147,7 +147,7 @@ public class IndexController {
         List<Poker> player = (List<Poker>)session.getAttribute("playerCards");
         List<Poker> dealer = (List<Poker>)session.getAttribute("dealerCards");
         if ( player.size() == 2 && dealer.get(1).getValue() != 11 )
-            return AjaxReturn.success(String.valueOf(pokerService.surrender(session)));
+            return AjaxReturn.success(pokerService.surrender(session));
 
         return AjaxReturn.fail();
     }
@@ -160,7 +160,7 @@ public class IndexController {
         List<Poker> player = (List<Poker>)session.getAttribute("playerCards");
         List<Poker> dealer = (List<Poker>)session.getAttribute("dealerCards");
         if ( player.size() == 2 && dealer.get(1).getValue() == 11 )
-            return AjaxReturn.success(String.valueOf(pokerService.insurance(session)));
+            return AjaxReturn.success(pokerService.insurance(session));
 
         return AjaxReturn.fail();
     }
