@@ -114,7 +114,7 @@ define(['model','jquery','backbone'],function(PokerModel){
             this.model.advisor();
             setTimeout(function(){
                 $("#advisor").popover('hide');
-            },2000);
+            }, 3000);
         },
 
         surrender : function(){

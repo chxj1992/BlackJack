@@ -47,24 +47,19 @@ public class AdvisorService {
         if(usedCards == null || session.getAttribute("level") == "expert")
             return "No suggestion";
 
-        System.out.println(undealCards.size()+" "+usedCards.size());
-        if( usedCards.size()<undealCards.size() )
-            return "I advise you to set a 'Low' bet";
-
         Double total = 0.0;
         for( Poker poker : usedCards ) {
             total += Double.valueOf(highLow.get(poker.getValue()));
         }
 
         total = total*52/undealCards.size();
-
-        System.out.println(total);
+        String coefficient = String.format("%.2f", total);
         if( total <= 2 ) {
-            return "I advise you to set a 'Low' bet";
+            return "I advise you to set a 'Low' bet(Coefficient:"+coefficient+")";
         } else if ( total>=6 ) {
-            return "I advise you to set a 'High' bet";
+            return "I advise you to set a 'High' bet(Coefficient:"+coefficient+")";
         }else {
-            return  "I advise you to set a 'Medium' bet";
+            return  "I advise you to set a 'Medium' bet(Coefficient:"+coefficient+")";
         }
     }
 
