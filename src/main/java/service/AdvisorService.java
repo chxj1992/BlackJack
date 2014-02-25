@@ -44,8 +44,8 @@ public class AdvisorService {
         init();
         List<Poker> usedCards = (List<Poker>) session.getAttribute("usedCards");
         List<Poker> undealCards = (List<Poker>) session.getAttribute("undealCards");
-        if(usedCards == null || session.getAttribute("level") == "expert")
-            return "No suggestion";
+        if(usedCards == null || session.getAttribute("level").equals("expert") )
+            return "No suggestion, Sir";
 
         Double total = 0.0;
         for( Poker poker : usedCards ) {
@@ -55,11 +55,11 @@ public class AdvisorService {
         total = total*52/undealCards.size();
         String coefficient = String.format("%.2f", total);
         if( total <= 2 ) {
-            return "I advise you to set a 'Low' bet(Coefficient:"+coefficient+")";
+            return "I advise you to set a 'Low' bet, Sir(Coefficient:"+coefficient+")";
         } else if ( total>=6 ) {
-            return "I advise you to set a 'High' bet(Coefficient:"+coefficient+")";
+            return "I advise you to set a 'High' bet, Sir(Coefficient:"+coefficient+")";
         }else {
-            return  "I advise you to set a 'Medium' bet(Coefficient:"+coefficient+")";
+            return  "I advise you to set a 'Medium' bet, Sir(Coefficient:"+coefficient+")";
         }
     }
 
@@ -69,7 +69,7 @@ public class AdvisorService {
         List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
         List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
         if(playerCards == null)
-            return "No Suggestion";
+            return "No Suggestion, Sir";
 
         String dealer = String.valueOf(dealerCards.get(1).getValue());
         if ( dealer.equals("11") )
@@ -86,7 +86,7 @@ public class AdvisorService {
         if(playerCards.size()>2 && advisor.equals("Double"))
             advisor = "Hit";
 
-        return "I advise you to "+advisor;
+        return "I advise you to "+advisor+", Sir";
     }
 
 

@@ -7,13 +7,14 @@ define(['model','jquery','backbone'],function(PokerModel){
         },
 
         userInfo : function(){
+            $("#start-game").removeAttr("disabled");
             $('#content').hide();
             $('#user-info').show();
             $('.quit-btn').hide();
-
         },
 
         setUserInfo : function(){
+            $("#start-game").attr("disabled", "disabled");
             var userInfo = {
                 'player' : $("#player-name").val() != "" ? $("#player-name").val() : $("#player-name").attr("placeholder"),
                 'level' : $(".level:checked").val(),
@@ -50,6 +51,7 @@ define(['model','jquery','backbone'],function(PokerModel){
         el:$('body'),
         model : new PokerModel,
         events: {
+            'click #shuffle' : 'shuffle',
             'click .quit-btn' : 'quit',
             'click #advisor' : 'advisor',
             'click #surrender' : 'surrender',
@@ -94,6 +96,11 @@ define(['model','jquery','backbone'],function(PokerModel){
                 view.toFirstRound();
                 view.model.openCards();
             }, 500);
+        },
+
+        shuffle : function() {
+            $("#shuffle").attr("disabled", "disabled");
+            this.model.shuffle();
         },
 
         retry : function(){
@@ -160,9 +167,13 @@ define(['model','jquery','backbone'],function(PokerModel){
      * Private Functions
      *********************************************/
         toBeforeStart : function(){
+            var userInfo = JSON.parse(localStorage.getItem("userInfo"));
             localStorage.setItem("status", "before");
             $("#board-playing > button").removeAttr("disabled");
             $("#open-cards").removeAttr("disabled");
+            $("#shuffle").removeAttr("disabled");
+            if( userInfo.level == "expert" )
+                $("#shuffle").hide();
             $(".tag").text("");
             $(".alert").fadeOut();
             $("#mask").hide();

@@ -1,3 +1,13 @@
+<!-- Shuffle -->
+<div id="alert-shuffle" class="alert-tip alert alert-info fade in col-md-offset-1 col-md-6">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+    <h4> Shuffled </h4>
+    <p> the cards have shuffled, Sir </p>
+    <hr />
+    <p>
+        <button type="button" class="close-alert btn btn-success">OK</button>
+    </p>
+</div>
 
 <!-- Bust -->
 <div id="alert-bust" class="alert-tip alert alert-danger fade in col-md-offset-1 col-md-6">

@@ -5,10 +5,7 @@ import com.google.common.collect.Lists;
 import model.Poker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import service.PokerService;
 import utils.AjaxReturn;
 
@@ -39,11 +36,23 @@ public class IndexController {
     @RequestMapping(value="setLevel", method = RequestMethod.POST)
     @ResponseBody
     public Map setLevel(@RequestParam("level") String level,HttpSession session) {
-        pokerService.clearAll(session);
         session.setAttribute("level", level);
         session.setAttribute("balance", BALANCE);
+        pokerService.shuffleCards(session);
         return AjaxReturn.success();
     }
+
+
+    @RequestMapping(value="/shuffle", method = RequestMethod.POST)
+    @ResponseBody
+    public Map shuffle(HttpSession session) {
+        if( session.getAttribute("level")!=null && session.getAttribute("level").equals("beginner") ){
+            pokerService.shuffleCards(session);
+            return AjaxReturn.success();
+        }
+        return AjaxReturn.fail();
+    }
+
 
     @RequestMapping(value="/openCards", method = RequestMethod.POST)
     @ResponseBody

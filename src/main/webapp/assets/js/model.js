@@ -8,6 +8,24 @@ define(['jquery','backbone'],function(){
             'fileName' : '0.jpg'
         },
 
+        shuffle : function() {
+            $.ajax({
+                url : "/shuffle",
+                type : "POST",
+                dataType : 'Json',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                success : function(data){
+                    if(data.status == 1) {
+                        $("#mask").show();
+                        $("#alert-shuffle").fadeIn();
+                    } else {
+                        $("#mask").show();
+                        $("#alert-timeout").fadeIn();
+                    }
+                }
+            });
+        },
+
         advisor : function() {
             var url;
             if ( localStorage.getItem("status") == "before" )
@@ -24,7 +42,7 @@ define(['jquery','backbone'],function(){
                 async : false,
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 success : function(data){
-                    $("#advisor").attr("data-content", data.data + ", Sir.");
+                    $("#advisor").attr("data-content", data.data);
                     $("#advisor").popover('show');
                 }
             });

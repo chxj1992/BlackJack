@@ -51,6 +51,7 @@
                         </ul>
                     </div>
                     <div class="pull-right">
+                        <button id="shuffle" class="btn btn-danger"> Shuffle </button>
                         <button id="open-cards" class="btn btn-primary"> Open Card </button>
                     </div>
                 </div>

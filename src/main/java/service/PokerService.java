@@ -34,6 +34,21 @@ public class PokerService {
     @Autowired
     private PokerDao pokerDao;
 
+
+    /**
+     * 重新洗牌
+     * @param session
+     */
+    public void shuffleCards(HttpSession session) {
+        List<Poker> cards = pokerDao.getPokers(Pokers.init(DECK_NUM));
+
+        session.setAttribute("undealCards", cards);
+        session.setAttribute("dealerCards", Lists.newArrayList());
+        session.setAttribute("playerCards", Lists.newArrayList());
+        session.setAttribute("usedCards", Lists.newArrayList());
+    }
+
+
     public Map judgeWin(HttpSession session) {
 
         Integer bet = (Integer) session.getAttribute("bet");
@@ -241,20 +256,6 @@ public class PokerService {
         }
 
         return null;
-    }
-
-
-    /**
-     * 重新洗牌
-     * @param session
-     */
-    private void shuffleCards(HttpSession session) {
-        List<Poker> cards = pokerDao.getPokers(Pokers.init(DECK_NUM));
-
-        session.setAttribute("undealCards", cards);
-        session.setAttribute("dealerCards", Lists.newArrayList());
-        session.setAttribute("playerCards", Lists.newArrayList());
-        session.setAttribute("usedCards", Lists.newArrayList());
     }
 
 
