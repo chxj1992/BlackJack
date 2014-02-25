@@ -54,13 +54,14 @@ public class AdvisorService {
 
         total = total*52/undealCards.size();
         String coefficient = String.format("%.2f", total);
-        if( total <= 2 ) {
+        if ( total < -2 )
+            return "I advise you to 'Shuffle', Sir";
+        else if( total >= -2 && total < 2 )
             return "I advise you to set a 'Low' bet, Sir(Coefficient:"+coefficient+")";
-        } else if ( total>=6 ) {
-            return "I advise you to set a 'High' bet, Sir(Coefficient:"+coefficient+")";
-        }else {
+        else if ( total >= 2 && total < 6 )
             return  "I advise you to set a 'Medium' bet, Sir(Coefficient:"+coefficient+")";
-        }
+        else
+            return "I advise you to set a 'High' bet, Sir(Coefficient:"+coefficient+")";
     }
 
 
