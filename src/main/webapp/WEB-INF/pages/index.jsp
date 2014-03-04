@@ -90,15 +90,15 @@
             <h3><small>
                 Need Help?
             </small></h3>
-            <span id="advisor" class="label label-info" data-toggle="popover"
-                  data-placement="top" data-container="#advisor-tooltip"
+            <span id="adviser" class="label label-info" data-toggle="popover"
+                  data-placement="top" data-container="#adviser-tooltip"
                   data-content="No suggestion, Sir" title="Dear Sir">
                 <small>
-                    Advisor
+                    Adviser
                     <span class="glyphicon glyphicon-tag"></span>
                 </small>
             </span>
-            <div id="advisor-tooltip"></div>
+            <div id="adviser-tooltip"></div>
         </div>
 
         <div id="powered-by" class="col-md-2">

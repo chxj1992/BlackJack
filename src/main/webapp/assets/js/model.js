@@ -26,12 +26,12 @@ define(['jquery','backbone'],function(){
             });
         },
 
-        advisor : function() {
+        adviser : function() {
             var url;
             if ( localStorage.getItem("status") == "before" )
-                url = "/advisor/bet";
+                url = "/adviser/bet";
             else if( localStorage.getItem("status") == "play" )
-                url = "/advisor/action";
+                url = "/adviser/action";
             else
                 return;
 
@@ -42,8 +42,8 @@ define(['jquery','backbone'],function(){
                 async : false,
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 success : function(data){
-                    $("#advisor").attr("data-content", data.data);
-                    $("#advisor").popover('show');
+                    $("#adviser").attr("data-content", data.data);
+                    $("#adviser").popover('show');
                 }
             });
         },

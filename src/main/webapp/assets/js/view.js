@@ -53,7 +53,7 @@ define(['model','jquery','backbone'],function(PokerModel){
         events: {
             'click #shuffle' : 'shuffle',
             'click .quit-btn' : 'quit',
-            'click #advisor' : 'advisor',
+            'click #adviser' : 'adviser',
             'click #surrender' : 'surrender',
             'click #open-cards' : 'openCards',
             'click #stand' : 'stand',
@@ -117,10 +117,10 @@ define(['model','jquery','backbone'],function(PokerModel){
             $("#bet-value").text(bet);
         },
 
-        advisor : function(){
-            this.model.advisor();
+        adviser : function(){
+            this.model.adviser();
             setTimeout(function(){
-                $("#advisor").popover('hide');
+                $("#adviser").popover('hide');
             }, 3000);
         },
 

@@ -2,7 +2,6 @@ apply plugin: 'jetty'
 apply plugin: 'war'
 apply plugin: 'jetty'
 apply plugin: 'idea'
-apply from: 'http://www.tellurianring.com/projects/gradle-plugins/gradle-templates/apply.groovy'
 
 repositories {
     mavenCentral()
@@ -13,7 +12,8 @@ dependencies {
         compile "org.springframework:spring-webmvc:3.2.5.RELEASE",
                 "org.springframework:spring-jdbc:3.2.5.RELEASE",
                 "javax.servlet:jstl:1.2",
-                "com.google.guava:guava:11.0.2",
+                "com.google.guava:guava:16.0.1",
+                'commons-lang:commons-lang:2.6',
                 "org.codehaus.jackson:jackson-mapper-asl:1.9.5",
                 "mysql:mysql-connector-java:5.1.28" 
         

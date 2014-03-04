@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * Author: chen
  * DateTime: 1/8/14 10:41 AM
  */
-public class AdvisorDao {
+public class AdviserDao {
 
     @Autowired
     private JdbcTemplate jdbc;

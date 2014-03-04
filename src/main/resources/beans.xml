@@ -10,13 +10,20 @@
     </bean>
 
     <bean id="pokerDao" class="dao.PokerDao" />
-    <bean id="advisorDao" class="dao.AdvisorDao" />
+    <bean id="advisorDao" class="dao.AdviserDao" />
 
     <bean id="pokerService" class="service.PokerService" />
 
     <bean id="pokerMapper" class="mapper.PokerMapper" />
 
-    <bean id="advisorService" class="service.AdvisorService" />
+    <bean id="adviserService" class="service.AdviserService" >
+        <constructor-arg ref="pokerService"/>
+        <constructor-arg ref="advisorDao"/>
+    </bean>
+
+    <bean id="indexController" class="controller.IndexController">
+        <constructor-arg ref="pokerService"/>
+    </bean>
 
 
 </beans>
