@@ -1,6 +1,8 @@
 package controller;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import model.Poker;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -21,17 +23,44 @@ import static com.google.common.base.Objects.firstNonNull;
  */
 @Controller
 @RequestMapping("/")
-public class IndexController {
+public class IndexController{
+
 
     //初始余额
     private static final int BALANCE = 1000;
 
     private PokerService pokerService;
 
+    private List<Poker> undealCards;
+    private List<Poker> usedCards;
+    private List<Poker> playerCards;
+    private List<Poker> dealerCards;
+    private Map playerRoutine;
+    private Map dealerRoutine;
+
     public IndexController() {}
 
     public IndexController(PokerService pokerService) {
         this.pokerService = pokerService;
+    }
+
+
+    private void getSession(HttpSession session) {
+        undealCards = (List<Poker>) firstNonNull(session.getAttribute("undealCards"), Lists.newArrayList());
+        usedCards = (List<Poker>) firstNonNull(session.getAttribute("usedCards"), Lists.newArrayList());
+        playerCards = (List<Poker>) firstNonNull(session.getAttribute("playererCards"), Lists.newArrayList());
+        dealerCards = (List<Poker>) firstNonNull(session.getAttribute("dealerCards"), Lists.newArrayList());
+        playerRoutine = (Map) firstNonNull(session.getAttribute("PlayerRoutine"), Maps.newHashMap());
+        dealerRoutine = (Map) firstNonNull(session.getAttribute("dealerRoutine"), Maps.newHashMap());
+    }
+
+    private void setSession(HttpSession session) {
+        session.setAttribute("undealCards", undealCards);
+        session.setAttribute("usedCards", usedCards);
+        session.setAttribute("playerCards", playerCards);
+        session.setAttribute("dealerCards", dealerCards);
+        session.setAttribute("playerRoutine", playerRoutine);
+        session.setAttribute("dealerRoutine", dealerRoutine);
     }
 
 
@@ -43,11 +72,10 @@ public class IndexController {
     @RequestMapping(value="setLevel", method = RequestMethod.POST)
     @ResponseBody
     public Map setLevel(@RequestParam("level") String level, HttpSession session) {
+        getSession(session);
         session.setAttribute("level", level);
         session.setAttribute("balance", BALANCE);
-        List<Poker> undealCards = (List<Poker>) session.getAttribute("undealCards");
-        List<Poker> usedCards = (List<Poker>) session.getAttribute("usedCards");
-        pokerService.shuffleCards(undealCards, usedCards);
+        setSession(session);
         return AjaxReturn.success();
     }
 
@@ -55,11 +83,13 @@ public class IndexController {
     @RequestMapping(value="/shuffle", method = RequestMethod.POST)
     @ResponseBody
     public Map shuffle(HttpSession session) {
+        getSession(session);
         String level = (String) session.getAttribute("level");
         List<Poker> undealCards = (List<Poker>) session.getAttribute("undealCards");
         List<Poker> usedCards = (List<Poker>) session.getAttribute("usedCards");
         if( StringUtils.equals(level, "beginner") ){
             pokerService.shuffleCards(undealCards, usedCards);
+            setSession(session);
             return AjaxReturn.success();
         }
         return AjaxReturn.fail();
@@ -70,16 +100,13 @@ public class IndexController {
     @ResponseBody
     public Map openCards(@RequestParam("bet") Integer bet, HttpSession session) {
 
+        getSession(session);
         Integer balance = (Integer) session.getAttribute("balance");
         if( balance == null || balance < bet )
             return AjaxReturn.fail("balance not enough");
         session.setAttribute("bet", bet);
         session.setAttribute("balance", balance - bet);
 
-        List<Poker> dealerCards = (List < Poker >)session.getAttribute("dealerCards");
-        List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
-        List<Poker> undealCards = (List<Poker>) session.getAttribute("undealCards");
-        List<Poker> usedCards = (List<Poker>) session.getAttribute("usedCards");
         Map playerRoutine = (Map) session.getAttribute("playerRoutine");
         Map dealerRoutine = (Map) session.getAttribute("dealerRoutine");
         String level = firstNonNull((String) session.getAttribute("level"), "beginner");
@@ -90,13 +117,13 @@ public class IndexController {
 
         //隐藏庄家暗牌
         dealerCards.set(0, new Poker(0, 0, "0.jpg"));
+        setSession(session);
         pokerService.checkRoutine("dealer", playerCards, dealerCards, playerRoutine, dealerRoutine);
         Map routine = pokerService.checkRoutine("player", playerCards, dealerCards, playerRoutine, dealerRoutine);
         ImmutableMap data = ImmutableMap.of(
                 "dealer", ImmutableMap.of("cards", dealerCards),
                 "player", ImmutableMap.of("cards", playerCards,
                 "routine", routine)) ;
-
         return AjaxReturn.success(data);
     }
 
@@ -105,18 +132,15 @@ public class IndexController {
     @ResponseBody
     public Map hitCards(@RequestParam("role") String role, HttpSession session) {
 
-        if( session.getAttribute("undealCards") == null )
+        getSession(session);
+        Map playerRoutine = (Map) session.getAttribute("playerRoutine");
+        Map dealerRoutine = (Map) session.getAttribute("dealerRoutine");
+
+        if( undealCards.size() == 0 )
             return AjaxReturn.fail("timeout");
 
         if( role.equals("player") && !session.getAttribute("status").equals("playing") )
             return AjaxReturn.fail("status error");
-
-        List<Poker> usedCards = (List<Poker>) session.getAttribute("usedCards");
-        List<Poker> undealCards = (List<Poker>) session.getAttribute("undealCards");
-        List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
-        List<Poker> dealerCards = (List<Poker>) session.getAttribute("dealerCards");
-        Map playerRoutine = (Map) session.getAttribute("playerRoutine");
-        Map dealerRoutine = (Map) session.getAttribute("dealerRoutine");
 
         Poker poker = undealCards.get(0);
         undealCards.remove(0);
@@ -134,6 +158,7 @@ public class IndexController {
             poker = dealerCards.get(dealerCards.size()-1);
 
         usedCards.add(poker);
+        setSession(session);
 
         Map routine = pokerService.checkRoutine(role, playerCards, dealerCards, playerRoutine, dealerRoutine);
         if ( role.equals("dealer") && totalScore>16 && totalScore<=21 )
@@ -152,8 +177,7 @@ public class IndexController {
     @ResponseBody
     public Map standCards(HttpSession session) {
         session.setAttribute("status","stand");
-        Map routine = (Map) session.getAttribute("dealerRoutine");
-        return AjaxReturn.success(ImmutableMap.of("routine", routine));
+        return AjaxReturn.success(ImmutableMap.of("routine", dealerRoutine));
     }
 
 
@@ -161,7 +185,6 @@ public class IndexController {
     @ResponseBody
     public Map doubleCards(HttpSession session) {
 
-        List<Poker> playerCards = (List<Poker>) session.getAttribute("playerCards");
         if( playerCards.size() > 2 )
             return AjaxReturn.fail();
 
@@ -177,9 +200,7 @@ public class IndexController {
     @ResponseBody
     public Map surrender(HttpSession session) {
 
-        List<Poker> player = (List<Poker>)session.getAttribute("playerCards");
-        List<Poker> dealer = (List<Poker>)session.getAttribute("dealerCards");
-        if ( player != null && player.size() == 2 && dealer.get(1).getValue() != 11 )
+        if ( playerCards.size() == 2 && dealerCards.get(1).getValue() != 11 )
             return AjaxReturn.success(pokerService.surrender((Integer) session.getAttribute("bet"), (Integer) session.getAttribute("balance")));
 
         return AjaxReturn.fail();
@@ -190,9 +211,7 @@ public class IndexController {
     @ResponseBody
     public Map insurance(HttpSession session) {
 
-        List<Poker> player = (List<Poker>)session.getAttribute("playerCards");
-        List<Poker> dealer = (List<Poker>)session.getAttribute("dealerCards");
-        if ( player.size() == 2 && dealer.get(1).getValue() == 11 )
+        if ( playerCards.size() == 2 && dealerCards.get(1).getValue() == 11 )
             return AjaxReturn.success(pokerService.insurance((Integer) session.getAttribute("bet"), (Integer) session.getAttribute("balance"), (List<Poker>) session.getAttribute("dealerCards")));
 
         return AjaxReturn.fail();
@@ -203,12 +222,12 @@ public class IndexController {
     @ResponseBody
     public Map judge(HttpSession session){
 
-        List<Poker> playerCards = (List<Poker>)session.getAttribute("playerCards");
-        List<Poker> dealerCards = (List<Poker>)session.getAttribute("dealerCards");
-        Map win = pokerService.judgeWin((Integer) session.getAttribute("bet"), (Integer) session.getAttribute("balance"), (List<Poker>) session.getAttribute("dealerCards"), (List<Poker>) session.getAttribute("playerCards"), null, null);
+        getSession(session);
+        Map win = pokerService.judgeWin((Integer) session.getAttribute("bet"), (Integer) session.getAttribute("balance"), dealerCards, playerCards, dealerRoutine, playerRoutine);
         Map data = ImmutableMap.of("name", win.get("name"), "money", win.get("money"), "dealer", dealerCards );
         session.setAttribute("balance", win.get("money"));
         pokerService.clearCards(playerCards, dealerCards );
+        setSession(session);
 
         return AjaxReturn.success(data);
     }
@@ -218,7 +237,7 @@ public class IndexController {
     @ResponseBody
     public Map blackJack(HttpSession session) {
 
-        Map playerRoutine = (Map)session.getAttribute("playerRoutine");
+        getSession(session);
         if( !playerRoutine.get("name").equals("Black Jack") )
             return AjaxReturn.fail();
 
@@ -228,9 +247,9 @@ public class IndexController {
         balance = (int)(balance+(1+1.5) * bet);
         session.setAttribute("balance", balance);
         Map data = ImmutableMap.of("name", "Black Jack", "money", balance);
+        setSession(session);
         return AjaxReturn.success(data);
     }
-
 
 
 }

@@ -4,13 +4,10 @@ import com.google.common.collect.Maps;
 import dao.AdviserDao;
 import model.Poker;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.FluentIterable.from;
 
 public class AdviserService {
 
@@ -41,7 +38,7 @@ public class AdviserService {
 
     public String getBetAdvise(List<Poker> usedCards, List<Poker> undealCards, String level) {
         init();
-        if (usedCards == null || StringUtils.equals(level, "expert"))
+        if (usedCards.size() == 0 || StringUtils.equals(level, "expert"))
             return "No suggestion, Sir";
 
         Double total = 0.0;
@@ -63,7 +60,7 @@ public class AdviserService {
 
     public String getActionAdvise(List<Poker> playerCards, List<Poker> dealerCards) {
 
-        if (playerCards == null)
+        if (playerCards.size() == 0 )
             return "No Suggestion, Sir";
 
         String dealer = String.valueOf(dealerCards.get(1).getValue());

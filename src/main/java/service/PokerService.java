@@ -3,15 +3,12 @@ package service;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sun.swing.internal.plaf.synth.resources.synth_zh_TW;
 import dao.PokerDao;
 import model.Poker;
 import org.springframework.beans.factory.annotation.Autowired;
-import sun.print.resources.serviceui_pt_BR;
 import utils.Pokers;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,10 +35,9 @@ public class PokerService {
 
 
     public void shuffleCards(List<Poker> undealCards, List<Poker> usedCards) {
-        List<Poker> cards = pokerDao.getPokers(Pokers.init(DECK_NUM));
-
-        undealCards = cards;
-        usedCards = Lists.newArrayList();
+        undealCards.clear();
+        undealCards.addAll(pokerDao.getPokers(Pokers.init(DECK_NUM)));
+        usedCards.clear();
     }
 
 
@@ -112,8 +108,8 @@ public class PokerService {
     public void checkShuffle(String level, List<Poker> undealCards, List<Poker> usedCards) {
         if ( level.equals("expert") )
             shuffleCards(undealCards, usedCards);
-        else if ( undealCards == null || (usedCards.size()/ undealCards.size()) >= 3 )
-            // 剩余牌量不足1/4时洗牌
+        // 剩余牌量不足1/4时洗牌
+        else if ( undealCards.size() == 0 || (usedCards.size()/ undealCards.size()) >= 3 )
             shuffleCards(undealCards, usedCards);
     }
 
@@ -136,8 +132,11 @@ public class PokerService {
 
     public void initRoutine(Map playerRoutine, Map dealerRoutine){
         Map newRoutine = ImmutableMap.of("name", "Normal", "rate", NORMAL_RATE);
-        playerRoutine = Maps.newHashMap(newRoutine);
-        dealerRoutine = Maps.newHashMap(newRoutine);
+        playerRoutine.clear();
+        playerRoutine.putAll(newRoutine);
+        //Todo : Routine not change
+        dealerRoutine.clear();
+        dealerRoutine.putAll(newRoutine);
     }
 
 
