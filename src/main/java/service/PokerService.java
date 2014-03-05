@@ -1,8 +1,6 @@
 package service;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import dao.PokerDao;
 import model.Poker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,7 +132,6 @@ public class PokerService {
         Map newRoutine = ImmutableMap.of("name", "Normal", "rate", NORMAL_RATE);
         playerRoutine.clear();
         playerRoutine.putAll(newRoutine);
-        //Todo : Routine not change
         dealerRoutine.clear();
         dealerRoutine.putAll(newRoutine);
     }
@@ -155,7 +152,7 @@ public class PokerService {
      * @return
      */
     public Integer surrender(Integer bet, Integer balance) {
-        return (int)(balance + bet -SURRENDER_RATE* bet);
+        return (int)(balance + bet - SURRENDER_RATE * bet);
     }
 
     /**
